@@ -54,8 +54,14 @@ public class Main {
 		}
 
 		ArrayList<Processor> processors = new ArrayList<>();
-		Processor p = new Processor(0, null, null, file);
-		processors.add(p);
+        Bus sh_bus = new Bus();
+
+        for (int i = 0; i < no_processors; i++) {
+            Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, protocol);
+            Processor p = new Processor(i, sh_bus, cache_creation_var, file);
+            processors.add(p);
+
+        }
 
 		while (true) {
 			try {

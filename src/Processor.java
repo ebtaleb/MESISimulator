@@ -15,10 +15,10 @@ public class Processor {
 		return (int) Long.parseLong(hs, 16);
 	}
 
-	public Processor(int proc_id, Bus b, int[] cache_settings, String file) throws FileNotFoundException {
+	public Processor(int proc_id, Bus b, Cache c, String file) throws FileNotFoundException {
 		this.proc_id = proc_id;
 		this.sharedBus = b;
-		this.proc_cache = new Cache();
+		this.proc_cache = c;
 		this.cycle_count = 0;
 		ins_trace = new BufferedReader(new FileReader(file));
 	}
