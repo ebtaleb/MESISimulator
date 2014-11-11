@@ -39,12 +39,13 @@ public class Processor {
             throw new Exception();
         }
 
-        if (cycle_count > 500) {
-            throw new Exception();
-        }
-
+        proc_cache.execute(ins);
         cycle_count++;
 
+        if (cycle_count > 500) {
+            System.out.println(proc_cache);
+            throw new Exception();
+        }
 	}
 
 

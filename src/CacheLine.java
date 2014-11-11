@@ -1,31 +1,39 @@
 
 public class CacheLine {
 
-	private int memory_address;
-	private String state;
+	private int address;
+	private State state;
+	private boolean dirty;
+	private boolean valid;
 	private int tag;
 	private int index;
 
-	public CacheLine(int addr, String s, int tag, int index) {
-		memory_address = addr;
+	public CacheLine(int addr, State s, int tag, int index) {
+		address = addr;
 		state = s;
+		dirty = false;
+		valid = false;
 		this.tag = tag;
 		this.index = index;
 	}
 
-	public int getMemory_address() {
-		return memory_address;
+	public int getAddress() {
+		return address;
 	}
 
-	public void setMemory_address(int addr) {
-		this.memory_address = addr;
+	public String getAddrString() {
+		return Integer.toHexString(address);
 	}
 
-	public String getState() {
+	public void setAddress(int addr) {
+		this.address = addr;
+	}
+
+	public State getState() {
 		return state;
 	}
 
-	public void setState(String s) {
+	public void setState(State s) {
 		state = s;
 	}
 
@@ -44,5 +52,28 @@ public class CacheLine {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+
+	@Override
+	public String toString() {
+		return index + "\t\t" + (valid ? 1 : 0) + "\t\t" + (dirty ? 1 : 0) + "\t\t" + tag + "\t\t" + state + "\t\t" + getAddrString() + "\n";
+	}
+
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+	}
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+
+
 
 }
