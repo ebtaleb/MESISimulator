@@ -60,7 +60,6 @@ public class Main {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, protocol);
             Processor p = new Processor(i, sh_bus, cache_creation_var, file);
             processors.add(p);
-
         }
 
 		while (true) {
