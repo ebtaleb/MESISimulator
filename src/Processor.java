@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 
 public class Processor {
 
@@ -24,27 +23,26 @@ public class Processor {
 	}
 
 	public void run() throws Exception {
-		String line;
-		String[] split_line = null;
-		int[] int_split_line = null;
+		String[] split_line;
 
-        line = ins_trace.readLine();
+        String line = ins_trace.readLine();
+        int[] ins = new int[2];
         if (line != null) {
-            int_split_line = new int[2];
 	        split_line = line.split(" ");
-	        int_split_line[0] = Integer.parseInt(split_line[0]);
-	        int_split_line[1] = hexStringToInt(split_line[1]);
-	        System.out.println("[ " + int_split_line[0] + ", " + Integer.toHexString(int_split_line[1]) + " ]");
+	        ins[0] = Integer.parseInt(split_line[0]);
+	        ins[1] = hexStringToInt(split_line[1]);
+	        System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
         } else {
             throw new Exception();
         }
 
-        if (cycle_count > 500) {
-            throw new Exception();
-        }
-
+        proc_cache.execute(ins);
         cycle_count++;
 
+        if (cycle_count > 500) {
+            System.out.println(proc_cache);
+            throw new Exception();
+        }
 	}
 
 

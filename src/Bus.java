@@ -1,13 +1,17 @@
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-
+import java.util.Queue;
 
 public class Bus {
+
 	private ArrayList<Cache> caches;
 	private int countMessagesOnBus;
+	private Queue message_queue;
 
-	public Bus(){
-		this.caches = new ArrayList();
+	public Bus() {
+		this.caches = new ArrayList<>();
 		this.countMessagesOnBus = 0;
+		message_queue = new ArrayDeque<>();
 	}
 
 	public ArrayList<Cache> getCaches() {
