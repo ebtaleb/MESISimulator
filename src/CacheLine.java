@@ -11,8 +11,6 @@ public class CacheLine {
 	public CacheLine(int addr, State s, int tag, int index) {
 		address = addr;
 		state = s;
-		dirty = false;
-		valid = false;
 		this.tag = tag;
 		this.index = index;
 	}
@@ -55,25 +53,6 @@ public class CacheLine {
 
 	@Override
 	public String toString() {
-		return index + "\t\t" + (valid ? 1 : 0) + "\t\t" + (dirty ? 1 : 0) + "\t\t" + tag + "\t\t" + state + "\t\t" + getAddrString() + "\n";
+		return index + "\t\t"  + tag + "\t\t" + state + "\t\t" + getAddrString() + "\n";
 	}
-
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	public void setDirty(boolean dirty) {
-		this.dirty = dirty;
-	}
-
-	public boolean isValid() {
-		return valid;
-	}
-
-	public void setValid(boolean valid) {
-		this.valid = valid;
-	}
-
-
-
 }

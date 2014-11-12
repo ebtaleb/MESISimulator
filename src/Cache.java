@@ -105,7 +105,7 @@ public class Cache {
 		int input_tag = getTag(address);
 		int input_index = getIndex(address);
 
-		if (cache_contents[input_index].getTag() == input_tag && cache_contents[input_index].isValid())  {
+		if (cache_contents[input_index].getTag() == input_tag && cache_contents[input_index].getState() == State.EXCLUSIVE)  {
 			return true;
 		} else {
 			return false;
@@ -139,14 +139,13 @@ public class Cache {
 		int index = getIndex(addr);
 		cache_contents[index].setAddress(addr);
 		cache_contents[index].setTag(getTag(addr));
-		cache_contents[index].setValid(true);
 		cache_contents[index].setState(State.EXCLUSIVE);
 	}
 
 	@Override
 	public String toString() {
 		String s = "Cache number " + cache_id + "\n";
-		s += "Index\t\tValid\t\tDirty\t\tTag\t\tState\t\tAddress\n";
+		s += "Index\t\tTag\t\tState\t\tAddress\n";
 
 		for (int i = 0; i < cache_contents.length; i++) {
 			s += cache_contents[i].toString();
