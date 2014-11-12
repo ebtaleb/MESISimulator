@@ -11,7 +11,7 @@ public class Bus {
 	public Bus() {
 		this.caches = new ArrayList<>();
 		this.countMessagesOnBus = 0;
-		message_queue = new ArrayDeque<>();
+		message_queue = new ArrayDeque<BusRequest>();
 	}
 
 	public ArrayList<Cache> getCaches() {
