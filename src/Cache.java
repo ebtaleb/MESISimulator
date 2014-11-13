@@ -1,5 +1,9 @@
 
 public class Cache {
+
+	public static final int INS_FETCH = 0;
+	public static final int INS_READ = 2;
+	public static final int INS_WRITE = 3;
 	//FORMULAS
 	//#Blocks = CacheSize / BlockSize
 	//#Sets = #Blocks / #Associativity
@@ -115,11 +119,11 @@ public class Cache {
 	public void execute(int[] ins) {
 
 		switch (ins[0]) {
-		case 0:
+		case INS_FETCH:
 			break;
-		case 2:
+		case INS_READ:
 			break;
-		case 3:
+		case INS_WRITE:
 			break;
 		default:
 			return;
