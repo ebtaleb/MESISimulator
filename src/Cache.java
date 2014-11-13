@@ -133,9 +133,11 @@ public class Cache {
 
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
+			countCacheHit++;
 		} else {
 			System.out.println("meh cache miss...");
 			updateCache(addr);
+			countCacheMiss++;
 		}
 	}
 
