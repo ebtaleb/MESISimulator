@@ -1,0 +1,20 @@
+hi sorry for the late reply.. so the pseudocode she gave me for the while loop is this:
+while (file has not ended) {
+cycle++
+process one line from trace1
+process one line from trace2
+process one line from trace3
+......
+take action from bus
+}
+trace1 is for processor1, trace2 is for processor2, etc.
+if processor 2 cannot process because the bus is occupied, then you move onto trace3 (processor3)
+then later come back to processor2 (in next iteration of while loop) and process the same instruction that was being held back because the bus was busy
+she also said for the cacheline class, we do not need the valid and dirty bit because we can already make out whether it is valid or dirty from the state (modified, shared, exclusive or invalid)
+we have to make the assumption that when flushing (means cache2 generates BusRd but cache1 has to update the memory for this block. but this block still remains inside the cache), cache1 directly gives cache2 the data in 1 clock cycle but it also updates memory which takes 10 clock cycles
+so the bus is blocked for 10 clock cycles.
+whenever there is a cache miss, you have to evict a block. you have to use the LRU policy to know which block to evict.
+bus arbitration policy is basically the bus keeping track of which cache is requesting the bus (put them in a queue) and serve them first come first serve
+so i guess the Bus class should have an instance variable which is a queue that holds the bus requests from the caches. I would think that the queue would contain the cache_id, the transaction type (eg. BusRd) and the memory address
+one more thing to note is that the arraylist in the Cache class should be an arraylist of the sets and not the blocks. this is because a cache contains sets which contains blocks. and when we extract the index from the memory address, it refers to the set index and not a block index. so having an arraylist of the sets tells us which index in the arraylist we are supposed to traverse to
+if you're ok with changing the following in the Bus, Cache and CacheLine classes and merging the changes, I can start working on the state machine. Else, you can merge what you have and I will make the changes
