@@ -160,4 +160,37 @@ public class Cache {
 		return s;
 	}
 
+    public void runProtocol(CacheLine block) {
+        if (protocol == "MSI") {
+
+            switch (block.getState()) {
+                case MODIFIED:
+                    break;
+                case SHARED:
+                    break;
+                case INVALID:
+                    break;
+                default:
+                    break;
+            }
+            return;
+        }
+
+        if (protocol == "MESI") {
+
+            switch (block.getState()) {
+                case MODIFIED:
+                    break;
+                case EXCLUSIVE:
+                    break;
+                case SHARED:
+                    break;
+                case INVALID:
+                    break;
+                default:
+                    break;
+            }
+            return;
+        }
+    }
 }
