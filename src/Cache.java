@@ -193,4 +193,8 @@ public class Cache {
             return;
         }
     }
+
+    public void busSnoop() {
+
+    }
 }
