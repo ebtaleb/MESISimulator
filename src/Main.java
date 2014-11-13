@@ -1,6 +1,8 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import java.io.File;
+
 public class Main {
 
 	static int hexStringToInt(String hs) {
@@ -10,7 +12,7 @@ public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 
 		String protocol = args[0];
-		String file = args[1];
+		String trace_dir = args[1];
 		int no_processors = Integer.parseInt(args[2]);
 		int cache_size = Integer.parseInt(args[3]);
 		int associativity = Integer.parseInt(args[4]);
@@ -56,9 +58,13 @@ public class Main {
 		ArrayList<Processor> processors = new ArrayList<>();
         Bus sh_bus = new Bus();
 
+		File dir = new File(trace_dir);
+		File[] directoryListing = dir.listFiles();
+
         for (int i = 0; i < no_processors; i++) {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, protocol);
-            Processor p = new Processor(i, sh_bus, cache_creation_var, file);
+
+            Processor p = new Processor(i, sh_bus, cache_creation_var, directoryListing[i].getAbsolutePath());
             processors.add(p);
         }
 
