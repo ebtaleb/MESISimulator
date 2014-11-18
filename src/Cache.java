@@ -26,10 +26,6 @@ public class Cache {
 	private Bus bus; //access to bus
 
 	//each set has n blocks for associativity = n
-	//each block has a valid bit, dirty bit and a tag
-	//the array index of each block is its cache index. it should be in running order
-	//each block also has a cacheHit tracker which holds when it was hit (for LRU policy)
-	//eg. block 1 hit --> countCacheHit++; block.cacheHit = countCacheHit; in the case of cache miss, see which block.cacheHit is lowest and evict that block
 	private CacheSet[] cache_sets;
 
 	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, String protocol){
@@ -111,11 +107,9 @@ public class Cache {
 		
 		for(int i=0;i<associativity;i++){
 			if (cache_sets[input_index].getCacheLine(i).getTag() == input_tag && cache_sets[input_index].getCacheLine(i).getState() != State.INVALID)  {
-				this.countCacheHit++;
 				//set LRUage for block(ie.cache line)
 				return true;
 			} else {
-				this.countCacheMiss++;
 				//check if all blocks are occupied. 
 				//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
 				//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) and then gen a BusRd/BusRdX for the new mem add. Remember to change age other other blocks in cache.
@@ -152,9 +146,14 @@ public class Cache {
 
 	private void updateCache(int addr) {
 		int index = getIndex(addr);
-//		cache_sets[index].setAddress(addr);
-//		cache_sets[index].setTag(getTag(addr));
-//		cache_sets[index].setState(State.EXCLUSIVE);
+		for(int i=0;i<associativity;i++){
+			if (cache_sets[index].getCacheLine(i).getTag() == -1) //if there is an unoccupied
+			{
+				cache_sets[index].getCacheLine(i).setAddress(addr);
+				cache_sets[index].getCacheLine(i).setTag(getTag(addr));
+				cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
+			}
+		}
 	}
 
 	@Override

@@ -40,4 +40,14 @@ public class CacheSet {
     private void addCacheLine(CacheLine c) {
     	cache_lines.add(c);
     }
+    
+	@Override
+	public String toString() {
+		String s = "";
+		for (CacheLine cl : cache_lines) {
+			s += cl.toString();
+		}
+		
+		return s;
+	}
 }
