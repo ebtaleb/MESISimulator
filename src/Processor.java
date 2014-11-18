@@ -40,7 +40,7 @@ public class Processor {
                 split_line = line.split(" ");
                 ins[0] = Integer.parseInt(split_line[0]);
                 ins[1] = hexStringToInt(split_line[1]);
-                System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
+                System.out.println("Cycle " + cycle_count + " : [ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
             } else {
                 throw new Exception();
             }
@@ -57,14 +57,14 @@ public class Processor {
     		}
             
             if (!proc_cache.execute(ins)) {
-                System.out.println("Proc " + proc_id + " is blocked");
                 blockProc();
             } else {
                 cycle_count++;
             }
 
-            if (cycle_count > 5000) {
+            if (cycle_count > 500) {
                 System.out.println(proc_cache);
+                System.out.println("Total cycle number : " + cycle_count);
                 throw new Exception();
             }
         }
@@ -77,10 +77,15 @@ public class Processor {
 
 	private boolean is_blocked() {
 		if (cycle_count == blocked_until) {
-			blocked_until = 0;
+			blocked_until = cycle_count;
 			is_blocked = false;
 		}
 
+		if (is_blocked == true) {
+	        System.out.println( "Cycle " + cycle_count + " :" + "Proc " + proc_id + " is blocked");
+	        System.out.println( (blocked_until - cycle_count) + " cycles left before unblocking");
+			return is_blocked;
+		}
 		return is_blocked;
 	}
 

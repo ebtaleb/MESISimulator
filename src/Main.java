@@ -60,10 +60,15 @@ public class Main {
 
 		File dir = new File(trace_dir);
 		File[] directoryListing = dir.listFiles();
+		
+		boolean uniproc_flag = false;
+		if (no_processors == 1) {
+			uniproc_flag = true;
+		}
 
         for (int i = 0; i < no_processors; i++) {
-            Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus);
-
+            Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, uniproc_flag);
+            
             Processor p = new Processor(i, sh_bus, cache_creation_var, directoryListing[i].getAbsolutePath());
             processors.add(p);
         }

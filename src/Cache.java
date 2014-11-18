@@ -15,8 +15,9 @@ public class Cache {
 
 	//each set has n blocks for associativity = n
 	private CacheSet[] cache_sets;
+	private boolean uniproc_flag;
 
-	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus){
+	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, boolean f){
 		this.cache_id = cache_id;
 		this.cache_size = cache_size;
 		this.associativity = associativity;
@@ -25,6 +26,7 @@ public class Cache {
 		this.countCacheMiss = 0;
 		this.countCacheHit = 0;
 		this.cache_sets = new CacheSet[cache_size/(block_size*associativity)];
+		uniproc_flag = f;
 
 		for (int i = 0; i < cache_sets.length; i++) {
 			cache_sets[i] = new CacheSet(i, this.associativity, -1, State.INVALID, -1);
@@ -158,12 +160,20 @@ public class Cache {
 				cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
 			}
 			else {
-				//check if all blocks are occupied. 
-				//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
-				//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) 
-				//Remember to change age other other blocks in cache.
-				//gen a BusRd/BusRdX for the new mem add. 
-				//set the address, tag, state for new mem address
+				
+				if (uniproc_flag == true) {
+					cache_sets[index].getCacheLine(i).setAddress(addr);
+					cache_sets[index].getCacheLine(i).setTag(getTag(addr));
+					cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
+				} else {
+					//check if all blocks are occupied. 
+					//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
+					//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) 
+					//Remember to change age other other blocks in cache.
+					//gen a BusRd/BusRdX for the new mem add. 
+					//set the address, tag, state for new mem address
+				}
+
 			}
 		}
 	}
