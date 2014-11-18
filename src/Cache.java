@@ -82,6 +82,20 @@ public class Cache {
 
 		return (address & bitmask) >>> (getIndexBits() + getOffsetBits());
 	}
+	
+	public CacheLine getCacheBlock(int addr) {
+		
+    	int index = getIndex(addr);
+    	
+    	for (int i = 0; i < associativity; i++) {
+    		if (cache_sets[index].getCacheLine(i).getAddress() == addr) {
+    			return cache_sets[index].getCacheLine(i);
+    		}
+    	}
+		
+		return null;
+		
+	}
 
 	private boolean isCacheHit(int address){
 		// get index and tag from address argument
@@ -134,7 +148,7 @@ public class Cache {
 		}
 	}
 
-	private void updateCache(int addr) {
+	public void updateCache(int addr) {
 		int index = getIndex(addr);
 		for(int i=0;i<associativity;i++){
 			if (cache_sets[index].getCacheLine(i).getTag() == -1) //if there is an unoccupied

@@ -73,8 +73,7 @@ public class Main {
 				for (Processor cp: processors) {
 					cp.run();
 				}
-				//bus req
-				//cyclecount++
+				sh_bus.processBusRequests();
 
 			} catch (Exception e) {
 				break;

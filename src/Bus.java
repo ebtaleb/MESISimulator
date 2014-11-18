@@ -10,7 +10,6 @@ public class Bus {
 	private String protocol;
 	private BusRequest curr_request;
 
-
 	public Bus(String p) {
 		this.caches = new ArrayList<>();
 		this.countMessagesOnBus = 0;
@@ -38,39 +37,44 @@ public class Bus {
         caches.add(c);
     }
     
-//    public void runCacheProtocol(CacheLine block) {
-//        if (protocol == "MSI") {
-//
-//            switch (block.getState()) {
-//                case MODIFIED:
-//                    break;
-//                case SHARED:
-//                    break;
-//                case INVALID:
-//                    break;
-//                default:
-//                    break;
-//            }
-//            return;
-//        }
-//
-//        if (protocol == "MESI") {
-//
-//            switch (block.getState()) {
-//                case MODIFIED:
-//                    break;
-//                case EXCLUSIVE:
-//                    break;
-//                case SHARED:
-//                    break;
-//                case INVALID:
-//                    break;
-//                default:
-//                    break;
-//            }
-//            return;
-//        }
-//    }
+    public void runCacheProtocol(BusRequest br) {
+    	
+    	int cache_id = br.getCache_id();
+    	Cache target_cache = caches.get(cache_id);
+    	CacheLine block = target_cache.getCacheBlock(br.getAddress());
+    	
+        if (protocol == "MSI") {
+
+            switch (block.getState()) {
+                case MODIFIED:
+                    break;
+                case SHARED:
+                    break;
+                case INVALID:
+                    break;
+                default:
+                    break;
+            }
+            return;
+        }
+
+        if (protocol == "MESI") {
+
+            switch (block.getState()) {
+                case MODIFIED:
+                    break;
+                case EXCLUSIVE:
+                    break;
+                case SHARED:
+                    break;
+                case INVALID:
+                    break;
+                default:
+                    break;
+            }
+            return;
+        }
+    }
     
     public void enqueueRequest(BusRequest br){
     	this.message_queue.add(br);
@@ -78,8 +82,11 @@ public class Bus {
     }
     
     public void processBusRequests(){
+    	if (curr_request == null) {
+    		return;
+    	}
     	if(this.curr_request.getCyclesLeft() == 0) {
-    		//runCacheProtocol(); 
+    		runCacheProtocol(this.curr_request); 
     		this.curr_request = (BusRequest) this.message_queue.remove();
         	this.curr_request.decrementCyclesLeft();
     	}
