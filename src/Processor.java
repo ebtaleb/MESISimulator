@@ -12,6 +12,7 @@ public class Processor {
 
 	private boolean is_blocked;
 	private int blocked_until;
+	private int[] pending_instruction;
 
 	static int hexStringToInt(String hs) {
 		return (int) Long.parseLong(hs, 16);
@@ -22,6 +23,7 @@ public class Processor {
 		this.sharedBus = b;
 		this.proc_cache = c;
 		this.cycle_count = 0;
+		this.pending_instruction = null;
 		ins_trace = new BufferedReader(new FileReader(file));
 	}
 
@@ -35,30 +37,40 @@ public class Processor {
             cycle_count++;
             return;
         } else {
-            ins = new int[2];
-            if ((line = ins_trace.readLine()) != null) {
-                split_line = line.split(" ");
-                ins[0] = Integer.parseInt(split_line[0]);
-                ins[1] = hexStringToInt(split_line[1]);
-                System.out.println("Cycle " + cycle_count + " : [ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
-            } else {
-                throw new Exception();
-            }
-            
-    		switch (ins[0]) {
-    		case Constants.INS_FETCH:
-    			cycle_count++;
-    			return;
-    		case Constants.INS_READ:
-    			break;
-    		case Constants.INS_WRITE:
-    			break;
-    		default:
-    		}
+
+        	if(this.pending_instruction == null){
+	            ins = new int[2];
+	            if ((line = ins_trace.readLine()) != null) {
+	                split_line = line.split(" ");
+	                ins[0] = Integer.parseInt(split_line[0]);
+	                ins[1] = hexStringToInt(split_line[1]);
+	                System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
+	            } else {
+	                throw new Exception();
+	            }
+	            
+	    		switch (ins[0]) {
+	    		case Constants.INS_FETCH:
+	    			cycle_count++;
+	    			return;
+	    		case Constants.INS_READ:
+	    			break;
+	    		case Constants.INS_WRITE:
+	    			break;
+	    		default:
+	    		}
+        	}
+        	else {
+        		ins = this.pending_instruction;
+        	}
             
             if (!proc_cache.execute(ins)) {
+            	System.out.println(ins[0] + " " + ins[1]);
+                System.out.println("Proc " + proc_id + " is blocked");
+                this.pending_instruction = ins;
                 blockProc();
             } else {
+            	this.pending_instruction = null;
                 cycle_count++;
             }
 

@@ -126,6 +126,19 @@ public class Cache {
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
 			//set LRUage for block(ie.cache line)
+			//if hit but in S state, hit but gen BusRdX and block for 10 cycles
+			if (getCacheBlock(addr).getState() == State.SHARED){
+				switch (ins[0]) {
+	    		case Constants.INS_READ:
+	    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
+	    			break;
+	    		case Constants.INS_WRITE:
+	    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+	    			break;
+	    		default:
+	    			break;
+	    		}
+			}
 			countCacheHit++;
 			return true;
 		} else {

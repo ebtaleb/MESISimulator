@@ -45,20 +45,18 @@ public class Bus {
     	
         switch(br.getTransaction()){
 	        case BusRd:
-	        	//get state of block that made this trxn
-	        	//if state was M, go to 
-	        	//if state was E, remain in E. 
-	        	//if state was S, remain in S. other S dont do anything. other in M flush and goes to S
-	        	//if state was I, go to S, others in S don't do anything. other in M flush and goes to S
 	        	
 	        	if (protocol == "MSI") {
 
 	                switch (block.getState()) {
 	                    case MODIFIED:
+	                    	//cache alr in M produces BusRd. 
+	                    	//No need to do anything as this cache should be in M and all others already in I
 	                        break;
 	                    case SHARED:
 	                        break;
 	                    case INVALID:
+	                    	//each cache snoop function called here
 	                        break;
 	                    default:
 	                        break;
