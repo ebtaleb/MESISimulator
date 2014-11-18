@@ -35,4 +35,43 @@ public class Bus {
     public void addCache(Cache c) {
         caches.add(c);
     }
+
+	public void enqueueRequest(BusRequest new_request) {
+		// TODO Auto-generated method stub
+		
+	}
+    
+//    public void runCacheProtocol(CacheLine block) {
+//        if (protocol == "MSI") {
+//
+//            switch (block.getState()) {
+//                case MODIFIED:
+//                    break;
+//                case SHARED:
+//                    break;
+//                case INVALID:
+//                    break;
+//                default:
+//                    break;
+//            }
+//            return;
+//        }
+//
+//        if (protocol == "MESI") {
+//
+//            switch (block.getState()) {
+//                case MODIFIED:
+//                    break;
+//                case EXCLUSIVE:
+//                    break;
+//                case SHARED:
+//                    break;
+//                case INVALID:
+//                    break;
+//                default:
+//                    break;
+//            }
+//            return;
+//        }
+//    }
 }
