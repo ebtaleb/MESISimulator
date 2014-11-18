@@ -159,7 +159,7 @@ public class Cache {
 	@Override
 	public String toString() {
 		String s = "Cache number " + cache_id + "\n";
-		s += "Index\t\tTag\t\tState\t\tAddress\n";
+		s += "Index\t\tSet Index\t\tTag\t\tState\t\tAddress\n";
 
 		for (int i = 0; i < cache_sets.length; i++) {
 			s += cache_sets[i].toString();

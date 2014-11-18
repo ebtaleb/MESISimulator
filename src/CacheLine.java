@@ -3,8 +3,6 @@ public class CacheLine {
 
 	private int address;
 	private State state;
-//	private boolean dirty;
-//	private boolean valid;
 	private int tag;
 	private int LRU_age;
 

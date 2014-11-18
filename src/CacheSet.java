@@ -6,15 +6,18 @@ public class CacheSet {
 
 	private ArrayList<CacheLine> cache_lines;
 	private int set_index;
+	private int asso;
 
 	public CacheSet(int set_index, int associativity) {
 		this.cache_lines = new ArrayList<>();
 		this.set_index = set_index;
+		asso = associativity;
 	}
 	
 	public CacheSet(int set_index, int associativity, int addr, State s, int tag){
 		this.cache_lines = new ArrayList<>();
 		this.set_index = set_index;
+		asso = associativity;
 		for(int i=0;i<associativity;i++){
 			CacheLine line = new CacheLine(addr, s, tag);
 			addCacheLine(line);
@@ -44,10 +47,11 @@ public class CacheSet {
 	@Override
 	public String toString() {
 		String s = "";
+		int ind = asso * set_index;
 		for (CacheLine cl : cache_lines) {
-			s += cl.toString();
+			s += ind + "\t\t" + set_index + "\t\t" + cl.toString();
+			ind++;
 		}
-		
 		return s;
 	}
 }
