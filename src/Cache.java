@@ -94,12 +94,8 @@ public class Cache {
 		
 		for(int i=0;i<associativity;i++){
 			if (cache_sets[input_index].getCacheLine(i).getTag() == input_tag && cache_sets[input_index].getCacheLine(i).getState() != State.INVALID)  {
-				//set LRUage for block(ie.cache line)
 				return true;
 			} else {
-				//check if all blocks are occupied. 
-				//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
-				//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) and then gen a BusRd/BusRdX for the new mem add. Remember to change age other other blocks in cache.
 				return false;
 			}
 		}
@@ -113,6 +109,7 @@ public class Cache {
 
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
+			//set LRUage for block(ie.cache line)
 			countCacheHit++;
 			return true;
 		} else {
@@ -120,10 +117,10 @@ public class Cache {
 			
     		switch (ins[0]) {
     		case Constants.INS_READ:
-    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr);
+    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
     			break;
     		case Constants.INS_WRITE:
-    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr);
+    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
     			break;
     		default:
     			break;
@@ -145,6 +142,14 @@ public class Cache {
 				cache_sets[index].getCacheLine(i).setAddress(addr);
 				cache_sets[index].getCacheLine(i).setTag(getTag(addr));
 				cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
+			}
+			else {
+				//check if all blocks are occupied. 
+				//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
+				//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) 
+				//Remember to change age other other blocks in cache.
+				//gen a BusRd/BusRdX for the new mem add. 
+				//set the address, tag, state for new mem address
 			}
 		}
 	}

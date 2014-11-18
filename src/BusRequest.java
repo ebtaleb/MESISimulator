@@ -4,11 +4,13 @@ public class BusRequest {
 	private int cache_id;
 	private Transaction transaction;
 	private int address;
+	private int cycles_left;
 
-	public BusRequest(int cache_id, Transaction transaction, int address) {
+	public BusRequest(int cache_id, Transaction transaction, int address, int cycles) {
 		this.cache_id = cache_id;
 		this.transaction = transaction;
 		this.address = address;
+		this.cycles_left = cycles;
 	}
 
 	public int getCache_id() {
@@ -21,5 +23,14 @@ public class BusRequest {
 
 	public int getAddress() {
 		return address;
+	}
+	
+	public void decrementCyclesLeft(){
+		this.cycles_left--;
+		return;
+	}
+	
+	public int getCyclesLeft(){
+		return this.cycles_left;
 	}
 }

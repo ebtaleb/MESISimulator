@@ -8,6 +8,8 @@ public class Bus {
 	private int countMessagesOnBus;
 	private Queue message_queue;
 	private String protocol;
+	private BusRequest curr_request;
+
 
 	public Bus(String p) {
 		this.caches = new ArrayList<>();
@@ -35,11 +37,6 @@ public class Bus {
     public void addCache(Cache c) {
         caches.add(c);
     }
-
-	public void enqueueRequest(BusRequest new_request) {
-		// TODO Auto-generated method stub
-		
-	}
     
 //    public void runCacheProtocol(CacheLine block) {
 //        if (protocol == "MSI") {
@@ -74,4 +71,21 @@ public class Bus {
 //            return;
 //        }
 //    }
+    
+    public void enqueueRequest(BusRequest br){
+    	this.message_queue.add(br);
+    	return;
+    }
+    
+    public void processBusRequests(){
+    	if(this.curr_request.getCyclesLeft() == 0) {
+    		//runCacheProtocol(); 
+    		this.curr_request = (BusRequest) this.message_queue.remove();
+        	this.curr_request.decrementCyclesLeft();
+    	}
+    	else {
+    		this.curr_request.decrementCyclesLeft();
+    	}
+    	return;
+    }
 }
