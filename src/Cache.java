@@ -21,21 +21,20 @@ public class Cache {
 
 	private int countCacheMiss;
 	private int countCacheHit;
-
-	private String protocol; //MSI or MESI
+	
      //Each processor can only have 1 pending instruction in bus request queue
+	
 	private Bus bus; //access to bus
 
 	//each set has n blocks for associativity = n
 	private CacheSet[] cache_sets;
 
-	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, String protocol){
+	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus){
 		this.cache_id = cache_id;
 		this.cache_size = cache_size;
 		this.associativity = associativity;
 		this.block_size = block_size;
 		this.bus = bus;
-		this.protocol = protocol;
 		this.countCacheMiss = 0;
 		this.countCacheHit = 0;
 		this.cache_sets = new CacheSet[cache_size/(block_size*associativity)];
