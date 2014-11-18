@@ -7,11 +7,13 @@ public class Bus {
 	private ArrayList<Cache> caches;
 	private int countMessagesOnBus;
 	private Queue message_queue;
+	private String protocol;
 
-	public Bus() {
+	public Bus(String p) {
 		this.caches = new ArrayList<>();
 		this.countMessagesOnBus = 0;
 		message_queue = new ArrayDeque<BusRequest>();
+		protocol = p;
 	}
 
 	public ArrayList<Cache> getCaches() {
