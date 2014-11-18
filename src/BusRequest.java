@@ -4,7 +4,6 @@ public class BusRequest {
 	private int cache_id;
 	private Transaction transaction;
 	private int address;
-	private int ins_type;
 
 	public BusRequest(int cache_id, Transaction transaction, int address) {
 		this.cache_id = cache_id;

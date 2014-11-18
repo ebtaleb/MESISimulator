@@ -1,19 +1,6 @@
 
 public class Cache {
 
-	public static final int INS_FETCH = 0;
-	public static final int INS_READ = 2;
-	public static final int INS_WRITE = 3;
-	//FORMULAS
-	//#Blocks = CacheSize / BlockSize
-	//#Sets = #Blocks / #Associativity
-	//Block number = mem address / blocksize
-	//Block offset (bits) = mem address mod blocksize
-	//Cache index (bits) = log2(#Sets) --> cache index and set index are the same thing
-	//Tag bits in mem = length of address - block offset bits - set index bits  --> to differentiate memory blocks that map to the same cache block
-	//Mapping Function: Cache Index = (Block Number) modulo (Number of Cache Blocks)
-	//Cache hit: (Tag[index] = Tag[memory address]) AND (Valid[index] = TRUE)
-
 	private int cache_id;
 	public int cache_size;
 	public int block_size;
@@ -169,41 +156,7 @@ public class Cache {
 		return s;
 	}
 
-    public void runProtocol(CacheLine block) {
-        if (protocol == "MSI") {
-
-            switch (block.getState()) {
-                case MODIFIED:
-                    break;
-                case SHARED:
-                    break;
-                case INVALID:
-                    break;
-                default:
-                    break;
-            }
-            return;
-        }
-
-        if (protocol == "MESI") {
-
-            switch (block.getState()) {
-                case MODIFIED:
-                    break;
-                case EXCLUSIVE:
-                    break;
-                case SHARED:
-                    break;
-                case INVALID:
-                    break;
-                default:
-                    break;
-            }
-            return;
-        }
-    }
-
-    public void busSnoop() {
-
+    public BusRequest busSnoop(int addr) {
+		return null;
     }
 }
