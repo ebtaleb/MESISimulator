@@ -10,6 +10,9 @@ public class Processor {
 	private int cycle_count;
 	private BufferedReader ins_trace;
 
+	private boolean is_blocked;
+	private int blocked_until;
+
 	static int hexStringToInt(String hs) {
 		return (int) Long.parseLong(hs, 16);
 	}
@@ -23,26 +26,51 @@ public class Processor {
 	}
 
 	public void run() throws Exception {
+
 		String[] split_line;
+        String line;
+        int[] ins;
 
-        String line = ins_trace.readLine();
-        int[] ins = new int[2];
-        if (line != null) {
-	        split_line = line.split(" ");
-	        ins[0] = Integer.parseInt(split_line[0]);
-	        ins[1] = hexStringToInt(split_line[1]);
-	        System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
+        if (is_blocked()) {
+            cycle_count++;
+            return;
         } else {
-            throw new Exception();
-        }
+            ins = new int[2];
+            if ((line = ins_trace.readLine()) != null) {
+                split_line = line.split(" ");
+                ins[0] = Integer.parseInt(split_line[0]);
+                ins[1] = hexStringToInt(split_line[1]);
+                System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
+            } else {
+                throw new Exception();
+            }
 
-        proc_cache.execute(ins);
-        cycle_count++;
+            if (proc_cache.execute(ins)) {
+                System.out.println("Proc " + proc_id + " is blocked");
+                blockProc();
+            } else {
+                cycle_count++;
+            }
 
-        if (cycle_count > 500) {
-            System.out.println(proc_cache);
-            throw new Exception();
+            if (cycle_count > 5000) {
+                System.out.println(proc_cache);
+                throw new Exception();
+            }
         }
+	}
+
+	private void blockProc() {
+		is_blocked = true;
+		blocked_until = cycle_count + 10;
+	}
+
+	private boolean is_blocked() {
+		if (cycle_count == blocked_until) {
+			blocked_until = 0;
+			is_blocked = false;
+		}
+
+		return is_blocked;
 	}
 
 

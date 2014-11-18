@@ -23,6 +23,7 @@ public class Cache {
 	private int countCacheHit;
 
 	private String protocol; //MSI or MESI
+     //Each processor can only have 1 pending instruction in bus request queue
 	private Bus bus; //access to bus
 
 	//each set has n blocks for associativity = n
@@ -119,7 +120,7 @@ public class Cache {
 		return false;
 	}
 
-	public void execute(int[] ins) {
+	public boolean execute(int[] ins) {
 
 		switch (ins[0]) {
 		case INS_FETCH:
@@ -129,7 +130,6 @@ public class Cache {
 		case INS_WRITE:
 			break;
 		default:
-			return;
 		}
 
 		int addr = ins[1];
@@ -137,10 +137,12 @@ public class Cache {
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
 			countCacheHit++;
+			return true;
 		} else {
 			System.out.println("meh cache miss...");
 			updateCache(addr);
 			countCacheMiss++;
+			return false;
 		}
 	}
 
