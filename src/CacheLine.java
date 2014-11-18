@@ -3,16 +3,16 @@ public class CacheLine {
 
 	private int address;
 	private State state;
-	private boolean dirty;
-	private boolean valid;
+//	private boolean dirty;
+//	private boolean valid;
 	private int tag;
-	private int index;
+	private int LRU_age;
 
-	public CacheLine(int addr, State s, int tag, int index) {
+	public CacheLine(int addr, State s, int tag) {
 		address = addr;
 		state = s;
 		this.tag = tag;
-		this.index = index;
+		this.LRU_age = -1;
 	}
 
 	public int getAddress() {
@@ -42,17 +42,18 @@ public class CacheLine {
 	public void setTag(int tag) {
 		this.tag = tag;
 	}
+	
 
-	public int getIndex() {
-		return index;
+	public int getLRU_age() {
+		return LRU_age;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	public void setLRU_age(int lRU_age) {
+		LRU_age = lRU_age;
 	}
 
 	@Override
 	public String toString() {
-		return index + "\t\t"  + tag + "\t\t" + state + "\t\t" + getAddrString() + "\n";
+		return tag + "\t\t" + state + "\t\t" + getAddrString() + "\n";
 	}
 }

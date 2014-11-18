@@ -30,7 +30,7 @@ public class Cache {
 	//the array index of each block is its cache index. it should be in running order
 	//each block also has a cacheHit tracker which holds when it was hit (for LRU policy)
 	//eg. block 1 hit --> countCacheHit++; block.cacheHit = countCacheHit; in the case of cache miss, see which block.cacheHit is lowest and evict that block
-	private CacheLine[] cache_contents;
+	private CacheSet[] cache_sets;
 
 	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, String protocol){
 		this.cache_id = cache_id;
@@ -41,10 +41,10 @@ public class Cache {
 		this.protocol = protocol;
 		this.countCacheMiss = 0;
 		this.countCacheHit = 0;
-		this.cache_contents = new CacheLine[cache_size/(block_size*associativity)];
+		this.cache_sets = new CacheSet[cache_size/(block_size*associativity)];
 
-		for (int i = 0; i < cache_contents.length; i++) {
-			cache_contents[i] = new CacheLine(-1, State.INVALID, -1, i);
+		for (int i = 0; i < cache_sets.length; i++) {
+			cache_sets[i] = new CacheSet(i, this.associativity, -1, State.INVALID, -1);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class Cache {
 		return (int) (Math.log(this.block_size) / Math.log(2));
 	}
 
-	private int getOffset(int address) { //is address an int?
+	private int getOffset(int address) {
 		int bitmask = 0;
 		for (int i = 0; i < getOffsetBits(); i++ ) {
 			bitmask |= (1 << i);
@@ -71,7 +71,7 @@ public class Cache {
 		return (address & bitmask);
 	}
 
-	private int getIndexBits(){
+	private int getIndexBits(){ //index = set index
 		//eg. 8 sets --> log8/log2 = 3 bits
 		return (int) (Math.log(getNoSets()) / Math.log(2));
 	}
@@ -102,18 +102,27 @@ public class Cache {
 
 	private boolean isCacheHit(int address){
 		// get index and tag from address argument
-		// use index to access cache, retrieve tag and validity
+		// use index to access cache set, retrieve tag and validity
 		//
 		//Cache hit: (Tag[index] = Tag[memory address]) AND (Valid[index] = TRUE)
 
 		int input_tag = getTag(address);
 		int input_index = getIndex(address);
-
-		if (cache_contents[input_index].getTag() == input_tag && cache_contents[input_index].getState() == State.EXCLUSIVE)  {
-			return true;
-		} else {
-			return false;
+		
+		for(int i=0;i<associativity;i++){
+			if (cache_sets[input_index].getCacheLine(i).getTag() == input_tag && cache_sets[input_index].getCacheLine(i).getState() != State.INVALID)  {
+				this.countCacheHit++;
+				//set LRUage for block(ie.cache line)
+				return true;
+			} else {
+				this.countCacheMiss++;
+				//check if all blocks are occupied. 
+				//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
+				//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) and then gen a BusRd/BusRdX for the new mem add. Remember to change age other other blocks in cache.
+				return false;
+			}
 		}
+		return false;
 	}
 
 	public void execute(int[] ins) {
@@ -143,9 +152,9 @@ public class Cache {
 
 	private void updateCache(int addr) {
 		int index = getIndex(addr);
-		cache_contents[index].setAddress(addr);
-		cache_contents[index].setTag(getTag(addr));
-		cache_contents[index].setState(State.EXCLUSIVE);
+//		cache_sets[index].setAddress(addr);
+//		cache_sets[index].setTag(getTag(addr));
+//		cache_sets[index].setState(State.EXCLUSIVE);
 	}
 
 	@Override
@@ -153,8 +162,8 @@ public class Cache {
 		String s = "Cache number " + cache_id + "\n";
 		s += "Index\t\tTag\t\tState\t\tAddress\n";
 
-		for (int i = 0; i < cache_contents.length; i++) {
-			s += cache_contents[i].toString();
+		for (int i = 0; i < cache_sets.length; i++) {
+			s += cache_sets[i].toString();
 		}
 
 		return s;
