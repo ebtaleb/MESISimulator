@@ -44,8 +44,19 @@ public class Processor {
             } else {
                 throw new Exception();
             }
-
-            if (proc_cache.execute(ins)) {
+            
+    		switch (ins[0]) {
+    		case Constants.INS_FETCH:
+    			cycle_count++;
+    			return;
+    		case Constants.INS_READ:
+    			break;
+    		case Constants.INS_WRITE:
+    			break;
+    		default:
+    		}
+            
+            if (!proc_cache.execute(ins)) {
                 System.out.println("Proc " + proc_id + " is blocked");
                 blockProc();
             } else {

@@ -108,17 +108,8 @@ public class Cache {
 
 	public boolean execute(int[] ins) {
 
-		switch (ins[0]) {
-		case INS_FETCH:
-			break;
-		case INS_READ:
-			break;
-		case INS_WRITE:
-			break;
-		default:
-		}
-
 		int addr = ins[1];
+		BusRequest new_request = null;
 
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
@@ -126,6 +117,20 @@ public class Cache {
 			return true;
 		} else {
 			System.out.println("meh cache miss...");
+			
+    		switch (ins[0]) {
+    		case Constants.INS_READ:
+    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr);
+    			break;
+    		case Constants.INS_WRITE:
+    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr);
+    			break;
+    		default:
+    			break;
+    		}
+    		
+			bus.enqueueRequest(new_request);
+			
 			updateCache(addr);
 			countCacheMiss++;
 			return false;

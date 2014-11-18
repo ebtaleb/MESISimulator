@@ -1,4 +1,4 @@
 
 public enum Transaction {
-	PrRead, PrWrite, BusRd, BusRdX, Flush
+	BusRd, BusRdX, BusWB, Flush
 }
