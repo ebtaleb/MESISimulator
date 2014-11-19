@@ -135,14 +135,17 @@ public class Cache {
 
 		if (isCacheHit(addr)) {
 			System.out.println("yeah cache hit!");
-			//set LRUage for block(ie.cache line)
-			//if hit but in S state, hit but gen BusRdX and block for 10 cycles
+			
 			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
 	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
 			}
-			if ((getCacheBlock(addr).getState() == State.EXCLUSIVE) && (ins[0] == Constants.INS_WRITE) ){
+			else if ((getCacheBlock(addr).getState() == State.EXCLUSIVE) && (ins[0] == Constants.INS_WRITE) ){
 	    		//just go to modified. no bus transaction cos all others in I
 				getCacheBlock(addr).setState(State.MODIFIED);
+			}
+			else {
+				//normal hit. no need for bus transaction
+				updateLRUage(addr);
 			}
 			countCacheHit++;
 			return true;
@@ -175,30 +178,42 @@ public class Cache {
 
 	public void updateCache(int addr) {
 		int index = getIndex(addr);
+		int num_cache_lines_occupied = 0;
 		for(int i=0;i<associativity;i++){
-			if (cache_sets[index].getCacheLine(i).getTag() == -1) //if there is an unoccupied
+			CacheLine block = cache_sets[index].getCacheLine(i);
+			if (block.getTag() == -1) //if there is an unoccupied
 			{
-				cache_sets[index].getCacheLine(i).setAddress(addr);
-				cache_sets[index].getCacheLine(i).setTag(getTag(addr));
-				cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
+				block.setAddress(addr);
+				block.setTag(getTag(addr));
+				block.setState(State.EXCLUSIVE);
+				updateLRUage(addr);
 			}
 			else {
 				
 				if (uniproc_flag == true) {
-					cache_sets[index].getCacheLine(i).setAddress(addr);
-					cache_sets[index].getCacheLine(i).setTag(getTag(addr));
-					cache_sets[index].getCacheLine(i).setState(State.EXCLUSIVE);
+					block.setAddress(addr);
+					block.setTag(getTag(addr));
+					block.setState(State.EXCLUSIVE); 
+					//there is actually no need for a concept of state in uniprocessor. but if you're using it for the purposes of testing then its fine.
 				} else {
-					//check if all blocks are occupied. 
-					//if no, generate BusRd if read inst and BusRdX is write inst and occupy the memory block
-					//if yes, LRU policy to evict oldest block (BusWr if in M and nothing if in E) 
-					//Remember to change age other other blocks in cache.
-					//gen a BusRd/BusRdX for the new mem add. 
-					//set the address, tag, state for new mem address
+					num_cache_lines_occupied++;
 				}
 
 			}
 		}
+		
+		if(num_cache_lines_occupied == associativity){
+			//all blocks are occupied so do LRU policy
+			runLRUpolicy(addr);
+		}
+	}
+	
+	private void updateLRUage(int addr){
+		
+	}
+	
+	private void runLRUpolicy(int addr){
+		//inside this updateLRUage(addr);
 	}
 
 	@Override
