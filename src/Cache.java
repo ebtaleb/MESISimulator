@@ -32,6 +32,14 @@ public class Cache {
 			cache_sets[i] = new CacheSet(i, this.associativity, -1, State.INVALID, -1);
 		}
 	}
+	
+	public int getBlockSize(){
+		return this.block_size;
+	}
+	
+	public int getCacheID(){
+		return this.cache_id;
+	}
 
 	public int getNoBlocks() {
 		//#Blocks = CacheSize / BlockSize
@@ -203,7 +211,77 @@ public class Cache {
 		return s;
 	}
 
-    public BusRequest busSnoop(int addr) {
-		return null;
+    public void busSnoop(String protocol) {
+		BusRequest request = bus.getCurrRequest();
+		CacheLine block = getCacheBlock(request.getAddress());
+		if(this.cache_id == request.getCache_id()){
+			//I'm the cache that made request
+			if(block != null){
+				State state = block.getState();
+				if(state == State.MODIFIED){
+					//never happens but here for sake of completeness
+				}
+				else if(state == State.EXCLUSIVE){
+					//BusRd will not be produced by an E state since block is already in cache
+					if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.MODIFIED);
+					}
+				}
+				else if(state == State.SHARED){
+					//BusRd has no change in state. doesn't happen.
+					if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.MODIFIED);
+					}
+				}
+				else if(state == State.INVALID){
+					if(request.getTransaction() == Transaction.BusRd){
+						if(protocol == "MESI"){
+							if (bus.doMultipleCachesHaveBlock(request.getAddress(), this.cache_id)){ //shared signal
+								block.setState(State.SHARED);
+							}
+							else {
+								block.setState(State.EXCLUSIVE);
+							}
+						}
+						else { //MSI protocol
+							block.setState(State.SHARED);
+						}
+					}
+					else if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.MODIFIED);
+					}
+				}
+			}
+		} else {
+			if(block != null) {
+				//i'm another cache and I have the block
+				State state = block.getState();
+				if(state == State.MODIFIED){
+					if(request.getTransaction() == Transaction.BusRd){
+						block.setState(State.SHARED);
+					}
+					else if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.INVALID);
+					}
+				}
+				else if(state == State.EXCLUSIVE){
+					if(request.getTransaction() == Transaction.BusRd){
+						block.setState(State.SHARED);
+					}
+					else if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.INVALID);
+					}
+				}
+				else if(state == State.SHARED){
+					if(request.getTransaction() == Transaction.BusRdX){
+						block.setState(State.INVALID);
+					}
+				}
+				else if(state == State.INVALID){
+					//don't care 
+				}
+			}
+		}
+		
     }
 }
