@@ -16,6 +16,7 @@ public class Cache {
 	//each set has n blocks for associativity = n
 	private CacheSet[] cache_sets;
 	private boolean uniproc_flag;
+	private boolean pending_bus_request; //if there is already a pending request in bus. set flag = true when enqueue. set flag = false when cache checks that bus has completed a transaction already in the bus queue
 
 	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, boolean f){
 		this.cache_id = cache_id;
@@ -27,6 +28,7 @@ public class Cache {
 		this.countCacheHit = 0;
 		this.cache_sets = new CacheSet[cache_size/(block_size*associativity)];
 		uniproc_flag = f;
+		this.pending_bus_request = false;
 
 		for (int i = 0; i < cache_sets.length; i++) {
 			cache_sets[i] = new CacheSet(i, this.associativity, -1, State.INVALID, -1);
@@ -135,23 +137,18 @@ public class Cache {
 			System.out.println("yeah cache hit!");
 			//set LRUage for block(ie.cache line)
 			//if hit but in S state, hit but gen BusRdX and block for 10 cycles
-			if (getCacheBlock(addr).getState() == State.SHARED){
-				switch (ins[0]) {
-	    		case Constants.INS_READ:
-	    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
-	    			break;
-	    		case Constants.INS_WRITE:
-	    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
-	    			break;
-	    		default:
-	    			break;
-	    		}
+			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
+	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+			}
+			if ((getCacheBlock(addr).getState() == State.EXCLUSIVE) && (ins[0] == Constants.INS_WRITE) ){
+	    		//just go to modified. no bus transaction cos all others in I
+				getCacheBlock(addr).setState(State.MODIFIED);
 			}
 			countCacheHit++;
 			return true;
 		} else {
 			System.out.println("meh cache miss...");
-			
+			countCacheMiss++; 
     		switch (ins[0]) {
     		case Constants.INS_READ:
     			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
@@ -163,11 +160,16 @@ public class Cache {
     			break;
     		}
     		
-			bus.enqueueRequest(new_request);
-			
-			updateCache(addr);
-			countCacheMiss++;
-			return false;
+    		if(this.pending_bus_request){ 
+    			return false;
+    		}
+    		else {
+    			bus.enqueueRequest(new_request);
+    			this.pending_bus_request = true;
+    			return true;
+    		}
+    		
+			//updateCache(addr); //should not update here. updateCache when cache checks that bus has finished processing its transaction
 		}
 	}
 
