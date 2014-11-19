@@ -33,4 +33,10 @@ public class BusRequest {
 	public int getCyclesLeft(){
 		return this.cycles_left;
 	}
+	
+	public String toString() {
+		String s = "";
+		s += "proc " + cache_id + ", transaction: " + transaction + ", address: " + Integer.toHexString(address) + ", " +  cycles_left + " cycles left";
+		return s;
+	}
 }

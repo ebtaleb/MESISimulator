@@ -151,28 +151,34 @@ public class Cache {
 			return true;
 		} else {
 			System.out.println("meh cache miss...");
-			countCacheMiss++; 
-    		switch (ins[0]) {
-    		case Constants.INS_READ:
-    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
-    			break;
-    		case Constants.INS_WRITE:
-    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
-    			break;
-    		default:
-    			break;
-    		}
-    		
-    		if(this.pending_bus_request){ 
-    			return false;
-    		}
-    		else {
+			countCacheMiss++;
+			
+			if (!pending_bus_request) {
+	    		switch (ins[0]) {
+	    		case Constants.INS_READ:
+	    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
+	    			break;
+	    		case Constants.INS_WRITE:
+	    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+	    			break;
+	    		default:
+	    			break;
+	    		}
     			bus.enqueueRequest(new_request);
     			this.pending_bus_request = true;
-    			return true;
-    		}
-    		
-			//updateCache(addr); //should not update here. updateCache when cache checks that bus has finished processing its transaction
+			} else {
+	    		BusRequest current_request = bus.getCurrRequest();
+	    		if (current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
+	    			// updateCache when cache checks that bus has finished processing its transaction
+	    			pending_bus_request = false;
+	    			updateCache(addr);
+	    			return true;
+	    		} else {
+	    			return false;
+	    		}
+			}
+			
+			return false;
 		}
 	}
 

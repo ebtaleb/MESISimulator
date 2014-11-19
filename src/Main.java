@@ -1,6 +1,5 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-
 import java.io.File;
 
 public class Main {
@@ -79,6 +78,7 @@ public class Main {
 					cp.run();
 				}
 				sh_bus.processBusRequests();
+				System.out.println(sh_bus);
 
 			} catch (Exception e) {
 				break;

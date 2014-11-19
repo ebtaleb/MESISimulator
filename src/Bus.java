@@ -1,22 +1,24 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Queue;
 
-public class Bus {
+public class Bus<E> {
 
 	private ArrayList<Cache> caches;
 	private int countMessagesOnBus;
-	private Queue message_queue;
+	private Queue<BusRequest> message_queue;
 	private String protocol;
 	private BusRequest curr_request;
 	private int bus_traffic;
+	private boolean occupied_bus_flag;
 
 	public Bus(String p) {
 		this.caches = new ArrayList<>();
-		this.countMessagesOnBus = 0;
 		message_queue = new ArrayDeque<BusRequest>();
 		protocol = p;
 		this.bus_traffic = 0;
+		occupied_bus_flag = false;
 	}
 
 	public ArrayList<Cache> getCaches() {
@@ -28,15 +30,15 @@ public class Bus {
 	}
 
 	public int getCountMessagesOnBus() {
-		return countMessagesOnBus;
-	}
-
-	public void setCountMessagesOnBus(int countMessagesOnBus) {
-		this.countMessagesOnBus = countMessagesOnBus;
+		return message_queue.size() + 1;
 	}
 
     public void addCache(Cache c) {
         caches.add(c);
+    }
+    
+    public boolean isOccupied() {
+    	return occupied_bus_flag;
     }
     
     public int getBusTraffic(){
@@ -187,21 +189,48 @@ public class Bus {
 	
     public void enqueueRequest(BusRequest br){
     	this.message_queue.add(br);
-    	return;
     }
     
     public void processBusRequests(){
-    	if (curr_request == null) {
+    	
+    	if (curr_request == null && message_queue.isEmpty() == true) {
     		return;
     	}
-    	if(this.curr_request.getCyclesLeft() == 0) {
-    		runCacheProtocol(this.curr_request); 
-    		this.curr_request = (BusRequest) this.message_queue.remove();
-        	this.curr_request.decrementCyclesLeft();
+    	
+    	if (curr_request == null && message_queue.isEmpty() == false) {
+    		curr_request = (BusRequest) this.message_queue.remove();
+    		occupied_bus_flag = true;
+    	}
+    	
+    	if (this.curr_request.getCyclesLeft() == 0) {
+    		//runCacheProtocol(this.curr_request); 
+    		//this.curr_request = (BusRequest) this.message_queue.remove();
+        	//this.curr_request.decrementCyclesLeft();
+    		curr_request = null;
+        	occupied_bus_flag = false;
     	}
     	else {
     		this.curr_request.decrementCyclesLeft();
     	}
     	return;
+    }
+    
+    public String toString() {
+    	String s = "";
+    	if (curr_request != null)
+    		s += "Current request: " + curr_request.toString() + "\n";
+    	
+    	if (!message_queue.isEmpty()) {
+	    	Iterator<BusRequest> it = message_queue.iterator();
+	    	for (BusRequest i = it.next(); it.hasNext() ; i = it.next()) {
+	    		s += i.toString() + "\n";
+	    	}
+    	}
+    	
+    	return s;
+    }
+    
+    public boolean emptyBus() {
+    	return message_queue.isEmpty() && curr_request == null;
     }
 }
