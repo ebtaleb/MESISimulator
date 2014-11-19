@@ -68,7 +68,7 @@ public class Main {
         for (int i = 0; i < no_processors; i++) {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, uniproc_flag);
             
-            Processor p = new Processor(i, sh_bus, cache_creation_var, directoryListing[i].getAbsolutePath());
+            Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath());
             processors.add(p);
         }
 

@@ -5,22 +5,18 @@ import java.io.FileReader;
 public class Processor {
 
 	private int proc_id;
-	private Bus sharedBus;
 	private Cache proc_cache;
 	private int cycle_count;
 	private BufferedReader ins_trace;
 
-	private boolean is_blocked;
-	private int blocked_until;
 	private int[] pending_instruction;
 
 	static int hexStringToInt(String hs) {
 		return (int) Long.parseLong(hs, 16);
 	}
 
-	public Processor(int proc_id, Bus b, Cache c, String file) throws FileNotFoundException {
+	public Processor(int proc_id, Cache c, String file) throws FileNotFoundException {
 		this.proc_id = proc_id;
-		this.sharedBus = b;
 		this.proc_cache = c;
 		this.cycle_count = 0;
 		this.pending_instruction = null;

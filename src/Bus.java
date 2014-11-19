@@ -3,10 +3,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
 
-public class Bus<E> {
+public class Bus {
 
 	private ArrayList<Cache> caches;
-	private int countMessagesOnBus;
 	private Queue<BusRequest> message_queue;
 	private String protocol;
 	private BusRequest curr_request;
