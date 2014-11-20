@@ -54,7 +54,7 @@ public class Main {
 			default: System.exit(0); break;
 		}
 		
-		String output_dir = Mkdir.mkdir(trace_dir, cache_size, associativity, block_size);
+		//String output_dir = Mkdir.mkdir(trace_dir, cache_size, associativity, block_size);
 
 		File dir = new File(trace_dir);
 		File[] directoryListing = dir.listFiles();
@@ -83,7 +83,11 @@ public class Main {
 				sh_bus.processBusRequests();
 
 			} catch (Exception e) {
+				System.out.println(e.toString());
 				System.out.println("Total bus traffic : " + sh_bus.getBusTraffic() + " bytes");
+				for (Processor cp: processors) {
+					System.out.println(cp.toString());
+				}
 				break;
 			}
 		}

@@ -155,31 +155,18 @@ public class Cache {
 		BusRequest new_request = null;
 
 		if (isCacheHit(addr)) {
-			System.out.println("Cache hit!");
+			System.out.println("Cache " + cache_id + ": Cache hit!");
 			
 			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
 	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
 				if (!pending_bus_request) {
-		    		switch (ins[0]) {
-		    		case Constants.INS_READ:
-		    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
-		    			break;
-		    		case Constants.INS_WRITE:
-		    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
-		    			break;
-		    		default:
-		    			break;
-		    		}
-	    			System.out.println("running LRU policy");
-	    			runLRUpolicy(addr);
 	    			System.out.println("request to bus is "+ new_request.toString());
 	    			bus.enqueueRequest(new_request);
 	    			this.pending_bus_request = true;
 				} else {
-					System.out.println("Cache execute(): cache miss, has pending bus request");
+					System.out.println("Cache" + cache_id +" execute(): cache hit, has pending bus request");
 		    		BusRequest current_request = bus.getCurrRequest();
-		    		if (current_request.getCache_id() == cache_id && current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
-		    			// updateCache when cache checks that bus has finished processing its transaction
+		    		if (current_request.getCache_id() == cache_id && current_request.getCyclesLeft() == 0) {
 		    			pending_bus_request = false;
 		    			return true;
 		    		} else {
@@ -198,9 +185,9 @@ public class Cache {
 			countCacheHit++;
 			return true;
 		} else {
-			System.out.println("Cache miss...");
+			System.out.println("Cache " + cache_id + ": Cache miss...");
 			countCacheMiss++;
-			System.out.println("Cache execute(): pending bus request: "+ pending_bus_request + " instruction: "+ins[0]);
+			System.out.println("Cache" + cache_id +" execute(): pending bus request: "+ pending_bus_request + " & instruction: "+ins[0]);
 			if (!pending_bus_request) {
 	    		switch (ins[0]) {
 	    		case Constants.INS_READ:
@@ -218,11 +205,10 @@ public class Cache {
     			bus.enqueueRequest(new_request);
     			this.pending_bus_request = true;
 			} else {
-				System.out.println("Cache execute(): cache miss, has pending bus request");
+				System.out.println("Cache" + cache_id +" execute(): cache miss, has pending bus request");
 	    		BusRequest current_request = bus.getCurrRequest();
-	    		System.out.println("Cache execute(): current request is "+current_request );
-	    		if (current_request.getCache_id() == cache_id && current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
-	    			// updateCache when cache checks that bus has finished processing its transaction
+	    		System.out.println("Cache" + cache_id +" execute(): current request is "+current_request );
+	    		if (current_request.getCache_id() == cache_id && current_request.getCyclesLeft() == 0) {
 	    			pending_bus_request = false;
 	    			return true;
 	    		} else {
@@ -239,14 +225,14 @@ public class Cache {
 		CacheLine block = cache_sets[index].getCacheLine(block_index);
 		block.setAddress(addr);
 		block.setTag(getTag(addr));
-		System.out.println("Cache updateCache(): uniproc_flag is "+uniproc_flag);
+		System.out.println("Cache" + cache_id +" updateCache(): uniproc_flag is "+uniproc_flag);
 		if(uniproc_flag){
 			block.setState(State.UNIPROC);
 		}
 		else{
 			block.setState(State.INVALID);
 		}
-		System.out.println("updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
+		System.out.println("Cache" + cache_id +" updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
 	}
 	
 	private void updateLRUage(int addr){
@@ -331,9 +317,10 @@ public class Cache {
 				}
 				else if(state == State.EXCLUSIVE){
 					//BusRd will not be produced by an E state since block is already in cache
-					if(request.getTransaction() == Transaction.BusRdX){
-						block.setState(State.MODIFIED);
-					}
+					//BusRdX never happens because if I'm E and I do BusRdX, I straight away go to M and don't need a trxn
+//					if(request.getTransaction() == Transaction.BusRdX){
+//						block.setState(State.MODIFIED);
+//					}
 				}
 				else if(state == State.SHARED){
 					//BusRd has no change in state. doesn't happen.
