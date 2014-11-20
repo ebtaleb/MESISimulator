@@ -53,6 +53,8 @@ public class Main {
 			case 128: break;
 			default: System.exit(0); break;
 		}
+		
+		String output_dir = Mkdir.mkdir(trace_dir, cache_size, associativity, block_size);
 
 		ArrayList<Processor> processors = new ArrayList<>();
         Bus sh_bus = new Bus(protocol);
