@@ -28,14 +28,22 @@ public class Processor {
 		String[] split_line;
         String line;
         int[] ins;
+        String ins_type = "";
 
         if(this.pending_instruction == null){
         	ins = new int[2];
         	if ((line = ins_trace.readLine()) != null) {
         		split_line = line.split(" ");
-        		ins[0] = Integer.parseInt(split_line[0]);
+        		
+        		switch (ins[0] = Integer.parseInt(split_line[0])) {
+        			case Constants.INS_FETCH : ins_type = "fetch from "; break;
+        			case Constants.INS_READ: ins_type = "read from "; break;
+        			case Constants.INS_WRITE: ins_type = "write to "; break;
+        			default: break;
+        		}
+        		
         		ins[1] = hexStringToInt(split_line[1]);
-        		System.out.println("[ " + ins[0] + ", " + Integer.toHexString(ins[1]) + " ]");
+        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
         	} else {
         		throw new Exception();
         	}
@@ -56,7 +64,7 @@ public class Processor {
         }
 
         if (!proc_cache.execute(ins)) {
-        	System.out.println("Proc " + proc_id + " is blocked");
+        	System.out.println("Processor: Proc " + proc_id + " is blocked");
         	this.pending_instruction = ins;
         } else {
         	this.pending_instruction = null;
@@ -66,7 +74,7 @@ public class Processor {
 
         if (cycle_count > 5000) {
         	System.out.println(proc_cache);
-        	System.out.println("Total cycle number : " + cycle_count);
+        	System.out.println("Processor " +proc_id+" total cycle number : " + cycle_count);
         	throw new Exception();
         }
 	}

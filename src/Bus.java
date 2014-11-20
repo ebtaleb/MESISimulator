@@ -47,21 +47,17 @@ public class Bus {
     public BusRequest getCurrRequest(){
     	return this.curr_request;
     }
-//    public void runCacheProtocol(){
-//    	BusRequest br = this.curr_request;
-//    	int cache_id = br.getCache_id();
-//    	System.out.println("in runCacheProtocol: cache_id is "+cache_id);
-//    	System.out.println("caches are "+caches.toString());
-//    	Cache target_cache = caches.get(cache_id);
-//    }
+
     public void runCacheProtocol() {
     	BusRequest br = this.curr_request;
     	int cache_id = br.getCache_id();
     	Cache target_cache = caches.get(cache_id);
     	CacheLine block = target_cache.getCacheBlock(br.getAddress());
+    	
     	System.out.println("runCacheProtocol: block is "+block.toString());
     	System.out.println("runCacheProtocol: transaction is "+br.getTransaction().toString());
     	System.out.println("runCacheProtocol: protocol is "+protocol);
+    	
         switch(br.getTransaction()){
 	        case BusRd:
 	        	
@@ -109,18 +105,12 @@ public class Bus {
 	                }
 	                return;
 	            }
+	            System.out.println(target_cache.getBlockSize());
 	            this.bus_traffic += target_cache.getBlockSize();
 	        	break;
 	        case BusRdX:
 	        	System.out.println("runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
-//	        	if (protocol.compareTo("MESI") == 0) {
-//	        		System.out.println("runCacheProtocol: confirmed protocol MESI");
-//	        		break;
-//	        	}
-//	        	else {
-//	        		System.out.println("runCacheProtocol: protocol is NOT MESI");
-//	        		break;
-//	        	}
+	        	
 	        	if (protocol.compareTo("MSI") == 0) {
 
 	                switch (block.getState()) {
@@ -219,15 +209,11 @@ public class Bus {
     	if (curr_request == null && message_queue.isEmpty() == false) {
     		System.out.println("size of message queue is "+ message_queue.size());
     		curr_request = (BusRequest) this.message_queue.remove();
-    		//System.out.println("current request is now "+curr_request.toString());
-    		//System.out.println(toString());
     		occupied_bus_flag = true;
     	}
     	
     	if (this.curr_request.getCyclesLeft() == 0) {
     		System.out.println("cycles left is now 0");
-    		//System.out.println("current request is now "+curr_request.toString());
-    		//System.out.println(toString());
     		runCacheProtocol(); 
     		System.out.println("ran cache protocol");
 

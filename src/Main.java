@@ -81,6 +81,7 @@ public class Main {
 				sh_bus.processBusRequests();
 
 			} catch (Exception e) {
+				System.out.println("Total bus traffic : " + sh_bus.getBusTraffic() + " bytes");
 				break;
 			}
 		}
