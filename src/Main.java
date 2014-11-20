@@ -55,7 +55,7 @@ public class Main {
 			default: System.exit(0); break;
 		}
 		
-		String output_dir = Mkdir.mkdir(trace_dir.substring(0, 3), no_processors, cache_size, associativity, block_size);
+		String output_dir = Mkdir.mkdir(protocol, trace_dir.substring(0, 3), no_processors, cache_size, associativity, block_size);
 
 		ArrayList<Processor> processors = new ArrayList<>();
         Bus sh_bus = new Bus(protocol, output_dir+"/bus_traffic");
