@@ -1,4 +1,5 @@
-import java.io.FileNotFoundException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -8,7 +9,7 @@ public class Main {
 		return (int) Long.parseLong(hs, 16);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
 
 		String protocol = args[0];
 		String trace_dir = args[1];
@@ -53,8 +54,8 @@ public class Main {
 			case 128: break;
 			default: System.exit(0); break;
 		}
-		
-		//String output_dir = Mkdir.mkdir(trace_dir, cache_size, associativity, block_size);
+
+		String output_dir = Mkdir.mkdir(protocol, trace_dir.substring(0, 3), no_processors, cache_size, associativity, block_size);
 
 		File dir = new File(trace_dir);
 		File[] directoryListing = dir.listFiles();
@@ -65,12 +66,12 @@ public class Main {
 		}
 		
 		ArrayList<Processor> processors = new ArrayList<>();
-        Bus sh_bus = new Bus(protocol, uniproc_flag);
+        Bus sh_bus = new Bus(protocol, uniproc_flag, output_dir+"/bus_traffic");
 
         for (int i = 0; i < no_processors; i++) {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, uniproc_flag);
             
-            Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath());
+            Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath(), output_dir+"/out"+i);
             processors.add(p);
             sh_bus.addCache(cache_creation_var);
         }
@@ -84,10 +85,12 @@ public class Main {
 
 			} catch (Exception e) {
 				System.out.println(e.toString());
-				System.out.println("Total bus traffic : " + sh_bus.getBusTraffic() + " bytes");
 				for (Processor cp: processors) {
+					System.setOut(cp.getStream());
 					System.out.println(cp.toString());
 				}
+				System.setOut(sh_bus.getStream());
+				System.out.println("Total bus traffic : " + sh_bus.getBusTraffic() + " bytes");
 				break;
 			}
 		}

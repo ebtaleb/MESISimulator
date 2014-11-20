@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,14 +16,25 @@ public class Bus {
 	private BusRequest curr_request;
 	private int bus_traffic;
 	private boolean occupied_bus_flag;
+	private PrintStream output_file;
 
-	public Bus(String p, boolean flag) {
+	public Bus(String p, boolean flag, String out_file) throws FileNotFoundException {
+		
 		this.caches = new ArrayList<>();
 		message_queue = new ArrayDeque<BusRequest>();
 		protocol = p;
 		bus_traffic = 0;
 		occupied_bus_flag = false;
 		uniproc_flag = flag;
+		
+		File file = new File(out_file);
+		FileOutputStream fos = new FileOutputStream(file);
+		PrintStream ps = new PrintStream(fos);
+		output_file = ps;
+	}
+	
+	public PrintStream getStream() {
+		return output_file;
 	}
 
 	public ArrayList<Cache> getCaches() {
@@ -209,7 +224,10 @@ public class Bus {
     }
     
     public void processBusRequests(){
+    	
+    	System.setOut(output_file);
     	System.out.println("Bus processBusRequests():" +toString());
+
     	if (curr_request == null && message_queue.isEmpty() == true) {
     		return;
     	}

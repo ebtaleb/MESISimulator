@@ -3,9 +3,9 @@ import java.io.File;
 
 public class Mkdir {
 	
-	public static String mkdir(String bench_name, int cache_size, int associativity, int block_size) {
+	public static String mkdir(String protocol, String bench, int num_proc, int cache_size, int associativity, int block_size) {
 		
-		String name = bench_name+"_CS"+cache_size+"_ASSO"+associativity+"_BS"+block_size;
+		String name = protocol+"_"+bench+num_proc+"_CS"+cache_size+"_ASSO"+associativity+"_BS"+block_size;
 		File theDir = new File(name);
 
 		// if the directory does not exist, create it
