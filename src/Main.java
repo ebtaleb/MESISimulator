@@ -54,9 +54,6 @@ public class Main {
 			default: System.exit(0); break;
 		}
 
-		ArrayList<Processor> processors = new ArrayList<>();
-        Bus sh_bus = new Bus(protocol);
-
 		File dir = new File(trace_dir);
 		File[] directoryListing = dir.listFiles();
 		
@@ -64,6 +61,9 @@ public class Main {
 		if (no_processors == 1) {
 			uniproc_flag = true;
 		}
+		
+		ArrayList<Processor> processors = new ArrayList<>();
+        Bus sh_bus = new Bus(protocol, uniproc_flag);
 
         for (int i = 0; i < no_processors; i++) {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, uniproc_flag);
