@@ -23,7 +23,7 @@ public class Mkdir {
 			}
 		}
 		
-		return "";
+		return name;
 	}
 
 }

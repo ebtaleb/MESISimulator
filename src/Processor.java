@@ -72,10 +72,15 @@ public class Processor {
         
     	cycle_count++;
 
-        if (cycle_count > 5000) {
-        	System.out.println(proc_cache);
-        	System.out.println("Processor " +proc_id+" total cycle number : " + cycle_count);
+        if (cycle_count > 50000) {
         	throw new Exception();
         }
 	}
+
+	@Override
+	public String toString() {
+		return "Processor " +proc_id+" total cycle number : " + cycle_count + "\n" + proc_cache.toString();
+	}
+	
+	
 }

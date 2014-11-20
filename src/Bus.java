@@ -58,8 +58,8 @@ public class Bus {
 
     	System.out.println("Bus runCacheProtocol: block is "+block.toString());
     	System.out.println("Bus runCacheProtocol: transaction is "+br.getTransaction().toString());
-    	System.out.println("Bus runCacheProtocol: protocol is "+protocol);
-    	System.out.println("Bus runCacheProtocol: uniproc_flag is "+uniproc_flag);
+    	//System.out.println("Bus runCacheProtocol: protocol is "+protocol);
+    	//System.out.println("Bus runCacheProtocol: uniproc_flag is "+uniproc_flag);
 
     	if(!uniproc_flag) {
 	        switch(br.getTransaction()){
@@ -84,7 +84,7 @@ public class Bus {
 		                    default:
 		                        break;
 		                }
-		                return;
+		                //return;
 		            }
 	
 		            if (protocol.compareTo("MESI") == 0) {
@@ -107,12 +107,12 @@ public class Bus {
 		                    default:
 		                        break;
 		                }
-		                return;
+		                //return;
 		            }
 		            this.bus_traffic += target_cache.getBlockSize();
 		        	break;
 		        case BusRdX:
-		        	System.out.println("Bus runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
+		        	//System.out.println("Bus runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
 
 		        	if (protocol.compareTo("MSI") == 0) {
 	
@@ -133,11 +133,11 @@ public class Bus {
 		                    default:
 		                        break;
 		                }
-		                return;
+		                //return;
 		            }
 	
 		            if (protocol.compareTo("MESI") == 0) {
-		            	System.out.println("Bus runCacheProtocol: in switch case BusRdX with MESI. block state is "+block.getState());
+		            	//System.out.println("Bus runCacheProtocol: in switch case BusRdX with MESI. block state is "+block.getState());
 		                switch (block.getState()) {
 		                    case MODIFIED:
 		                    	//will never get this case but here for sake of completeness
@@ -160,7 +160,7 @@ public class Bus {
 		                    	System.out.println("Bus runCacheProtocol: in default case for BusRdX");
 		                        break;
 		                }
-		                return;
+		                //return;
 		            }
 		        	this.bus_traffic += target_cache.getBlockSize();
 		        	break;
@@ -168,10 +168,10 @@ public class Bus {
 		    		System.out.println("Bus runCacheProtocol: in default case for BusRdX 1");
 		    		break;
 	        }
-    	}//end if uniproc 
+    	}//end if not uniproc 
     	else {
     		this.bus_traffic += target_cache.getBlockSize();
-    		System.out.println("Bus runCacheProtocol: uniproc_flag is true");
+    		//System.out.println("Bus runCacheProtocol: uniproc_flag is true");
     	}
     }
     
@@ -209,13 +209,13 @@ public class Bus {
     }
     
     public void processBusRequests(){
-    	System.out.println(toString());
+    	System.out.println("Bus processBusRequests():" +toString());
     	if (curr_request == null && message_queue.isEmpty() == true) {
     		return;
     	}
     	
     	if (curr_request == null && message_queue.isEmpty() == false) {
-    		System.out.println("size of message queue is "+ message_queue.size());
+    		System.out.println("Bus processBusRequests(): size of message queue is "+ message_queue.size());
     		curr_request = (BusRequest) this.message_queue.remove();
     		occupied_bus_flag = true;
     	}
@@ -225,8 +225,16 @@ public class Bus {
     		runCacheProtocol(); 
     		System.out.println("ran cache protocol");
     		caches.get(this.curr_request.getCache_id()).setPendingBusRequest(false);
-    		curr_request = null;
-        	occupied_bus_flag = false;
+//    		curr_request = null;
+//        	occupied_bus_flag = false;
+    		if(message_queue.isEmpty() == false){
+        		curr_request = (BusRequest) this.message_queue.remove();
+        		occupied_bus_flag = true;
+    		}
+    		else {
+        		curr_request = null;
+            	occupied_bus_flag = false;
+    		}
     	}
     	else {
     		this.curr_request.decrementCyclesLeft();
