@@ -334,7 +334,7 @@ public class Cache {
 				}
 				else if(state == State.INVALID){
 					if(request.getTransaction() == Transaction.BusRd){
-						if(protocol == "MESI"){
+						if(protocol.compareTo("MESI") == 0){
 							if (bus.doMultipleCachesHaveBlock(request.getAddress(), this.cache_id)){ //shared signal
 								System.out.println("Cache" + cache_id + " busSnoop(): I made request, Going to Shared from Invalid for BusRd");
 								block.setState(State.SHARED);
