@@ -108,6 +108,20 @@ public class Cache {
 		return null;
 		
 	}
+	
+	public int getCacheBlockIndex(int addr) {
+		
+    	int index = getIndex(addr);
+    	
+    	for (int i = 0; i < associativity; i++) {
+    		if (cache_sets[index].getCacheLine(i).getAddress() == addr) {
+    			return i;
+    		}
+    	}
+		
+		return -1;
+		
+	}
 
 	private boolean isCacheHit(int address){
 		// get index and tag from address argument
@@ -164,14 +178,16 @@ public class Cache {
 	    		default:
 	    			break;
 	    		}
+    			System.out.println("running LRU policy");
+    			runLRUpolicy(addr);
+    			System.out.println("request to bus is "+ new_request.toString());
     			bus.enqueueRequest(new_request);
     			this.pending_bus_request = true;
 			} else {
 	    		BusRequest current_request = bus.getCurrRequest();
-	    		if (current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
+	    		if (current_request.getCache_id() == cache_id && current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
 	    			// updateCache when cache checks that bus has finished processing its transaction
 	    			pending_bus_request = false;
-	    			updateCache(addr);
 	    			return true;
 	    		} else {
 	    			return false;
@@ -182,44 +198,68 @@ public class Cache {
 		}
 	}
 
-	public void updateCache(int addr) {
+	public void updateCache(int addr, int block_index) {
+		int index = getIndex(addr);
+		CacheLine block = cache_sets[index].getCacheLine(block_index);
+		block.setAddress(addr);
+		block.setTag(getTag(addr));
+		block.setState(State.INVALID);
+		System.out.println("updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
+	}
+	
+	private void updateLRUage(int addr){
+		int block_index = getCacheBlockIndex(addr);
+		if(block_index > 0){
+			updateLRUage(getIndex(addr), block_index);
+		}
+	}
+	
+	private void updateLRUage(int set_index, int block_index){
+		//block last touched is block_index
+		cache_sets[set_index].getCacheLine(block_index).setLRU_age(0);
+		for(int i=0;i<associativity;i++){
+			if(i != block_index){
+				CacheLine block = cache_sets[set_index].getCacheLine(i);
+				block.setLRU_age(block.getLRU_age() + 1);
+			}
+		}
+	}
+	
+	private void runLRUpolicy(int addr){
 		int index = getIndex(addr);
 		int num_cache_lines_occupied = 0;
 		for(int i=0;i<associativity;i++){
 			CacheLine block = cache_sets[index].getCacheLine(i);
-			if (block.getTag() == -1) //if there is an unoccupied
-			{
-				block.setAddress(addr);
-				block.setTag(getTag(addr));
-				block.setState(State.EXCLUSIVE);
-				updateLRUage(addr);
+			//if unoccupied
+			if (block.getTag() == -1) {
+				System.out.println("in lru policy, has unoccupied cache");
+				updateCache(addr, i);
+				updateLRUage(index, i);
 			}
 			else {
-				
-				if (uniproc_flag == true) {
-					block.setAddress(addr);
-					block.setTag(getTag(addr));
-					block.setState(State.EXCLUSIVE); 
-					//there is actually no need for a concept of state in uniprocessor. but if you're using it for the purposes of testing then its fine.
-				} else {
-					num_cache_lines_occupied++;
-				}
-
+				num_cache_lines_occupied++;
 			}
 		}
 		
 		if(num_cache_lines_occupied == associativity){
-			//all blocks are occupied so do LRU policy
-			runLRUpolicy(addr);
+			System.out.println("all blocks occupied");
+			//all blocks occupied
+			//find max age
+			int max_age = -1;
+			int max_age_block_index = -1;
+			for(int i=0;i<associativity;i++){
+				if(cache_sets[index].getCacheLine(i).getLRU_age() > max_age){
+					max_age_block_index = i;
+				}
+			}
+			//evict max age
+			cache_sets[index].getCacheLine(max_age_block_index).setAddress(-1);
+			cache_sets[index].getCacheLine(max_age_block_index).setTag(-1);
+			cache_sets[index].getCacheLine(max_age_block_index).setState(State.INVALID);
+			//update LRU ages
+			updateLRUage(index, max_age_block_index);
+			updateCache(addr, max_age_block_index);
 		}
-	}
-	
-	private void updateLRUage(int addr){
-		
-	}
-	
-	private void runLRUpolicy(int addr){
-		//inside this updateLRUage(addr);
 	}
 
 	@Override

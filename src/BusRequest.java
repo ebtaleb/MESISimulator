@@ -36,7 +36,7 @@ public class BusRequest {
 	
 	public String toString() {
 		String s = "";
-		s += "proc " + cache_id + ", transaction: " + transaction + ", address: " + Integer.toHexString(address) + ", " +  cycles_left + " cycles left";
+		s += "Request is, proc :" + cache_id + ", transaction: " + transaction.toString() + ", address: " + Integer.toHexString(address) + ", " +  cycles_left + " cycles left";
 		return s;
 	}
 }

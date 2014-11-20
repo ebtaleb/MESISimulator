@@ -58,13 +58,13 @@ public class Processor {
         if (!proc_cache.execute(ins)) {
         	System.out.println("Proc " + proc_id + " is blocked");
         	this.pending_instruction = ins;
-        	cycle_count++;
         } else {
         	this.pending_instruction = null;
-        	cycle_count++;
         }
+        
+    	cycle_count++;
 
-        if (cycle_count > 500) {
+        if (cycle_count > 5000) {
         	System.out.println(proc_cache);
         	System.out.println("Total cycle number : " + cycle_count);
         	throw new Exception();

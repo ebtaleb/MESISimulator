@@ -70,6 +70,7 @@ public class Main {
             
             Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath());
             processors.add(p);
+            sh_bus.addCache(cache_creation_var);
         }
 
 		while (true) {
@@ -78,7 +79,6 @@ public class Main {
 					cp.run();
 				}
 				sh_bus.processBusRequests();
-				System.out.println(sh_bus);
 
 			} catch (Exception e) {
 				break;
