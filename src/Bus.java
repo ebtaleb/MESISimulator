@@ -55,18 +55,12 @@ public class Bus {
     	int cache_id = br.getCache_id();
     	Cache target_cache = caches.get(cache_id);
     	CacheLine block = target_cache.getCacheBlock(br.getAddress());
+
     	System.out.println("Bus runCacheProtocol: block is "+block.toString());
     	System.out.println("Bus runCacheProtocol: transaction is "+br.getTransaction().toString());
     	System.out.println("Bus runCacheProtocol: protocol is "+protocol);
     	System.out.println("Bus runCacheProtocol: uniproc_flag is "+uniproc_flag);
-//    	if(uniproc_flag){
-//    		switch(br.getTransaction()){
-//    			case BusRd:
-//    				break;
-//    			case BusRdX:
-//    				break;
-//    		}
-//    	}
+
     	if(!uniproc_flag) {
 	        switch(br.getTransaction()){
 		        case BusRd:
@@ -119,14 +113,7 @@ public class Bus {
 		        	break;
 		        case BusRdX:
 		        	System.out.println("Bus runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
-	//	        	if (protocol.compareTo("MESI") == 0) {
-	//	        		System.out.println("runCacheProtocol: confirmed protocol MESI");
-	//	        		break;
-	//	        	}
-	//	        	else {
-	//	        		System.out.println("runCacheProtocol: protocol is NOT MESI");
-	//	        		break;
-	//	        	}
+
 		        	if (protocol.compareTo("MSI") == 0) {
 	
 		                switch (block.getState()) {
@@ -230,15 +217,11 @@ public class Bus {
     	if (curr_request == null && message_queue.isEmpty() == false) {
     		System.out.println("size of message queue is "+ message_queue.size());
     		curr_request = (BusRequest) this.message_queue.remove();
-    		//System.out.println("current request is now "+curr_request.toString());
-    		//System.out.println(toString());
     		occupied_bus_flag = true;
     	}
     	
     	if (this.curr_request.getCyclesLeft() == 0) {
     		System.out.println("cycles left is now 0");
-    		//System.out.println("current request is now "+curr_request.toString());
-    		//System.out.println(toString());
     		runCacheProtocol(); 
     		System.out.println("ran cache protocol");
     		caches.get(this.curr_request.getCache_id()).setPendingBusRequest(false);
