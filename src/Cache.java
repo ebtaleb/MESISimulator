@@ -95,6 +95,10 @@ public class Cache {
 		return (address & bitmask) >>> (getIndexBits() + getOffsetBits());
 	}
 	
+	public void setPendingBusRequest(boolean flag){
+		this.pending_bus_request = flag;
+	}
+	
 	public CacheLine getCacheBlock(int addr) {
 		
     	int index = getIndex(addr);
@@ -152,6 +156,33 @@ public class Cache {
 			
 			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
 	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+				if (!pending_bus_request) {
+		    		switch (ins[0]) {
+		    		case Constants.INS_READ:
+		    			new_request = new BusRequest(cache_id, Transaction.BusRd, addr, 10);
+		    			break;
+		    		case Constants.INS_WRITE:
+		    			new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+		    			break;
+		    		default:
+		    			break;
+		    		}
+	    			System.out.println("running LRU policy");
+	    			runLRUpolicy(addr);
+	    			System.out.println("request to bus is "+ new_request.toString());
+	    			bus.enqueueRequest(new_request);
+	    			this.pending_bus_request = true;
+				} else {
+					System.out.println("Cache execute(): cache miss, has pending bus request");
+		    		BusRequest current_request = bus.getCurrRequest();
+		    		if (current_request.getCache_id() == cache_id && current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
+		    			// updateCache when cache checks that bus has finished processing its transaction
+		    			pending_bus_request = false;
+		    			return true;
+		    		} else {
+		    			return false;
+		    		}
+				}
 			}
 			else if ((getCacheBlock(addr).getState() == State.EXCLUSIVE) && (ins[0] == Constants.INS_WRITE) ){
 	    		//just go to modified. no bus transaction cos all others in I
@@ -166,7 +197,7 @@ public class Cache {
 		} else {
 			System.out.println("meh cache miss...");
 			countCacheMiss++;
-			
+			System.out.println("Cache execute(): pending bus request: "+ pending_bus_request + " instruction: "+ins[0]);
 			if (!pending_bus_request) {
 	    		switch (ins[0]) {
 	    		case Constants.INS_READ:
@@ -184,7 +215,9 @@ public class Cache {
     			bus.enqueueRequest(new_request);
     			this.pending_bus_request = true;
 			} else {
+				System.out.println("Cache execute(): cache miss, has pending bus request");
 	    		BusRequest current_request = bus.getCurrRequest();
+	    		System.out.println("Cache execute(): current request is "+current_request );
 	    		if (current_request.getCache_id() == cache_id && current_request.getAddress() == ins[1] && current_request.getCyclesLeft() == 0) {
 	    			// updateCache when cache checks that bus has finished processing its transaction
 	    			pending_bus_request = false;
@@ -203,7 +236,13 @@ public class Cache {
 		CacheLine block = cache_sets[index].getCacheLine(block_index);
 		block.setAddress(addr);
 		block.setTag(getTag(addr));
-		block.setState(State.INVALID);
+		System.out.println("Cache updateCache(): uniproc_flag is "+uniproc_flag);
+		if(uniproc_flag){
+			block.setState(State.UNIPROC);
+		}
+		else{
+			block.setState(State.INVALID);
+		}
 		System.out.println("updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
 	}
 	
@@ -218,8 +257,8 @@ public class Cache {
 		//block last touched is block_index
 		cache_sets[set_index].getCacheLine(block_index).setLRU_age(0);
 		for(int i=0;i<associativity;i++){
-			if(i != block_index){
-				CacheLine block = cache_sets[set_index].getCacheLine(i);
+			CacheLine block = cache_sets[set_index].getCacheLine(i);
+			if(i != block_index && block.getLRU_age() >= 0){
 				block.setLRU_age(block.getLRU_age() + 1);
 			}
 		}

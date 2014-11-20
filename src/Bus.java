@@ -8,16 +8,18 @@ public class Bus {
 	private ArrayList<Cache> caches;
 	private Queue<BusRequest> message_queue;
 	private String protocol;
+	private boolean uniproc_flag;
 	private BusRequest curr_request;
 	private int bus_traffic;
 	private boolean occupied_bus_flag;
 
-	public Bus(String p) {
+	public Bus(String p, boolean flag) {
 		this.caches = new ArrayList<>();
 		message_queue = new ArrayDeque<BusRequest>();
 		protocol = p;
-		this.bus_traffic = 0;
+		bus_traffic = 0;
 		occupied_bus_flag = false;
+		uniproc_flag = flag;
 	}
 
 	public ArrayList<Cache> getCaches() {
@@ -47,134 +49,143 @@ public class Bus {
     public BusRequest getCurrRequest(){
     	return this.curr_request;
     }
-//    public void runCacheProtocol(){
-//    	BusRequest br = this.curr_request;
-//    	int cache_id = br.getCache_id();
-//    	System.out.println("in runCacheProtocol: cache_id is "+cache_id);
-//    	System.out.println("caches are "+caches.toString());
-//    	Cache target_cache = caches.get(cache_id);
-//    }
+
     public void runCacheProtocol() {
-    	BusRequest br = this.curr_request;
+    	BusRequest br = this.curr_request;  
     	int cache_id = br.getCache_id();
     	Cache target_cache = caches.get(cache_id);
     	CacheLine block = target_cache.getCacheBlock(br.getAddress());
-    	System.out.println("runCacheProtocol: block is "+block.toString());
-    	System.out.println("runCacheProtocol: transaction is "+br.getTransaction().toString());
-    	System.out.println("runCacheProtocol: protocol is "+protocol);
-        switch(br.getTransaction()){
-	        case BusRd:
-	        	
-	        	if (protocol.compareTo("MSI") == 0) {
-
-	                switch (block.getState()) {
-	                    case MODIFIED:
-	                    	//will never get this case but here for sake of completeness
-	                        break;
-	                    case SHARED:
-	                    	//will never get this case cos block in cache that's why in S. so cache hit. so will not generate BusRd
-	                    	//I remain in S, others in I remain in I, other in M flushes
-	                        break;
-	                    case INVALID:
-	                    	//I go to S, others in S remain in S, other in M flushes
-	                    	for (Cache cache : caches) {
-								cache.busSnoop(this.protocol);
-							}
-	                        break;
-	                    default:
-	                        break;
-	                }
-	                return;
-	            }
-
-	            if (protocol.compareTo("MESI") == 0) {
-
-	                switch (block.getState()) {
-	                    case MODIFIED:
-	                    	//will never get this case but here for sake of completeness
-	                        break;
-	                    case EXCLUSIVE:
-	                    	//will never get this case but here for sake of completeness (cos block alr in cache that's why in E state)
-	                        break;
-	                    case SHARED:
-	                    	//will never get this case but here for sake of completeness
-	                        break;
-	                    case INVALID:
-	                    	for (Cache cache : caches) {
-								cache.busSnoop(this.protocol);
-							}
-	                        break;
-	                    default:
-	                        break;
-	                }
-	                return;
-	            }
-	            this.bus_traffic += target_cache.getBlockSize();
-	        	break;
-	        case BusRdX:
-	        	System.out.println("runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
-//	        	if (protocol.compareTo("MESI") == 0) {
-//	        		System.out.println("runCacheProtocol: confirmed protocol MESI");
-//	        		break;
-//	        	}
-//	        	else {
-//	        		System.out.println("runCacheProtocol: protocol is NOT MESI");
-//	        		break;
-//	        	}
-	        	if (protocol.compareTo("MSI") == 0) {
-
-	                switch (block.getState()) {
-	                    case MODIFIED:
-	                    	//will never get this case but here for sake of completeness
-	                        break;
-	                    case SHARED:
-	                    	//generates BusRdX if sees a PrWr. other in M will flush I go to M, others go to I
-	                    	target_cache.busSnoop(this.protocol);
-	                    	invalidateOthers(br);
-	                        break;
-	                    case INVALID:
-	                    	//generates BusRdX if sees a PrWr. other M will flush. I go to M, others go to I
-	                    	target_cache.busSnoop(this.protocol);
-	                    	invalidateOthers(br);
-	                        break;
-	                    default:
-	                        break;
-	                }
-	                return;
-	            }
-
-	            if (protocol.compareTo("MESI") == 0) {
-	            	System.out.println("runCacheProtocol: in switch case BusRdX with MESI. block state is "+block.getState());
-	                switch (block.getState()) {
-	                    case MODIFIED:
-	                    	//will never get this case but here for sake of completeness
-	                        break;
-	                    case EXCLUSIVE:
-	                    	//only change this cache's state because the rest are all invalid anyway
-	                    	target_cache.busSnoop(this.protocol);
-	                        break;
-	                    case SHARED:
-	                    	target_cache.busSnoop(this.protocol);
-	                    	invalidateOthers(br);
-	                        break;
-	                    case INVALID:
-	                    	System.out.println("runCacheProtocol: MESI, BusRdX, Invalid. About to run snooping");
-	                    	for (Cache cache : caches) {
-								cache.busSnoop(this.protocol);
-							}
-	                        break;
-	                    default:
-	                    	System.out.println("runCacheProtocol: in default case for BusRdX");
-	                        break;
-	                }
-	                return;
-	            }
-	        	this.bus_traffic += target_cache.getBlockSize();
-	        	break;
-	    	default:
-	    		System.out.println("runCacheProtocol: in default case for BusRdX 1");
-	    		break;
-        }
+    	System.out.println("Bus runCacheProtocol: block is "+block.toString());
+    	System.out.println("Bus runCacheProtocol: transaction is "+br.getTransaction().toString());
+    	System.out.println("Bus runCacheProtocol: protocol is "+protocol);
+    	System.out.println("Bus runCacheProtocol: uniproc_flag is "+uniproc_flag);
+//    	if(uniproc_flag){
+//    		switch(br.getTransaction()){
+//    			case BusRd:
+//    				break;
+//    			case BusRdX:
+//    				break;
+//    		}
+//    	}
+    	if(!uniproc_flag) {
+	        switch(br.getTransaction()){
+		        case BusRd:
+		        	
+		        	if (protocol.compareTo("MSI") == 0) {
+	
+		                switch (block.getState()) {
+		                    case MODIFIED:
+		                    	//will never get this case but here for sake of completeness
+		                        break;
+		                    case SHARED:
+		                    	//will never get this case cos block in cache that's why in S. so cache hit. so will not generate BusRd
+		                    	//I remain in S, others in I remain in I, other in M flushes
+		                        break;
+		                    case INVALID:
+		                    	//I go to S, others in S remain in S, other in M flushes
+		                    	for (Cache cache : caches) {
+									cache.busSnoop(this.protocol);
+								}
+		                        break;
+		                    default:
+		                        break;
+		                }
+		                return;
+		            }
+	
+		            if (protocol.compareTo("MESI") == 0) {
+	
+		                switch (block.getState()) {
+		                    case MODIFIED:
+		                    	//will never get this case but here for sake of completeness
+		                        break;
+		                    case EXCLUSIVE:
+		                    	//will never get this case but here for sake of completeness (cos block alr in cache that's why in E state)
+		                        break;
+		                    case SHARED:
+		                    	//will never get this case but here for sake of completeness
+		                        break;
+		                    case INVALID:
+		                    	for (Cache cache : caches) {
+									cache.busSnoop(this.protocol);
+								}
+		                        break;
+		                    default:
+		                        break;
+		                }
+		                return;
+		            }
+		            this.bus_traffic += target_cache.getBlockSize();
+		        	break;
+		        case BusRdX:
+		        	System.out.println("Bus runCacheProtocol: in switch case BusRdX, protocol is "+protocol);
+	//	        	if (protocol.compareTo("MESI") == 0) {
+	//	        		System.out.println("runCacheProtocol: confirmed protocol MESI");
+	//	        		break;
+	//	        	}
+	//	        	else {
+	//	        		System.out.println("runCacheProtocol: protocol is NOT MESI");
+	//	        		break;
+	//	        	}
+		        	if (protocol.compareTo("MSI") == 0) {
+	
+		                switch (block.getState()) {
+		                    case MODIFIED:
+		                    	//will never get this case but here for sake of completeness
+		                        break;
+		                    case SHARED:
+		                    	//generates BusRdX if sees a PrWr. other in M will flush I go to M, others go to I
+		                    	target_cache.busSnoop(this.protocol);
+		                    	invalidateOthers(br);
+		                        break;
+		                    case INVALID:
+		                    	//generates BusRdX if sees a PrWr. other M will flush. I go to M, others go to I
+		                    	target_cache.busSnoop(this.protocol);
+		                    	invalidateOthers(br);
+		                        break;
+		                    default:
+		                        break;
+		                }
+		                return;
+		            }
+	
+		            if (protocol.compareTo("MESI") == 0) {
+		            	System.out.println("Bus runCacheProtocol: in switch case BusRdX with MESI. block state is "+block.getState());
+		                switch (block.getState()) {
+		                    case MODIFIED:
+		                    	//will never get this case but here for sake of completeness
+		                        break;
+		                    case EXCLUSIVE:
+		                    	//only change this cache's state because the rest are all invalid anyway
+		                    	target_cache.busSnoop(this.protocol);
+		                        break;
+		                    case SHARED:
+		                    	target_cache.busSnoop(this.protocol);
+		                    	invalidateOthers(br);
+		                        break;
+		                    case INVALID:
+		                    	System.out.println("Bus runCacheProtocol: MESI, BusRdX, Invalid. About to run snooping");
+		                    	for (Cache cache : caches) {
+									cache.busSnoop(this.protocol);
+								}
+		                        break;
+		                    default:
+		                    	System.out.println("Bus runCacheProtocol: in default case for BusRdX");
+		                        break;
+		                }
+		                return;
+		            }
+		        	this.bus_traffic += target_cache.getBlockSize();
+		        	break;
+		    	default:
+		    		System.out.println("Bus runCacheProtocol: in default case for BusRdX 1");
+		    		break;
+	        }
+    	}//end if uniproc 
+    	else {
+    		this.bus_traffic += target_cache.getBlockSize();
+    		System.out.println("Bus runCacheProtocol: uniproc_flag is true");
+    	}
     }
     
     public void invalidateOthers(BusRequest br){
@@ -230,7 +241,7 @@ public class Bus {
     		//System.out.println(toString());
     		runCacheProtocol(); 
     		System.out.println("ran cache protocol");
-
+    		caches.get(this.curr_request.getCache_id()).setPendingBusRequest(false);
     		curr_request = null;
         	occupied_bus_flag = false;
     	}
