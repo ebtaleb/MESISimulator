@@ -306,6 +306,7 @@ public class Cache {
 	}
 
     public void busSnoop(String protocol) {
+    	System.out.println("Cache" + cache_id + " busSnoop() - in bus snoop function.");
 		BusRequest request = bus.getCurrRequest();
 		CacheLine block = getCacheBlock(request.getAddress());
 		if(this.cache_id == request.getCache_id()){
@@ -314,6 +315,7 @@ public class Cache {
 				State state = block.getState();
 				if(state == State.MODIFIED){
 					//never happens but here for sake of completeness
+					System.out.println("Cache" + cache_id + " busSnoop() - I made request, I'm in M, no change");
 				}
 				else if(state == State.EXCLUSIVE){
 					//BusRd will not be produced by an E state since block is already in cache
@@ -321,10 +323,12 @@ public class Cache {
 //					if(request.getTransaction() == Transaction.BusRdX){
 //						block.setState(State.MODIFIED);
 //					}
+					System.out.println("Cache" + cache_id + " busSnoop() - I made request, I'm in E, no change");
 				}
 				else if(state == State.SHARED){
 					//BusRd has no change in state. doesn't happen.
 					if(request.getTransaction() == Transaction.BusRdX){
+						System.out.println("Cache" + cache_id + " busSnoop() - I made request, Going to Modified from Shared for BusRdX");
 						block.setState(State.MODIFIED);
 					}
 				}
@@ -332,17 +336,21 @@ public class Cache {
 					if(request.getTransaction() == Transaction.BusRd){
 						if(protocol == "MESI"){
 							if (bus.doMultipleCachesHaveBlock(request.getAddress(), this.cache_id)){ //shared signal
+								System.out.println("Cache" + cache_id + " busSnoop(): I made request, Going to Shared from Invalid for BusRd");
 								block.setState(State.SHARED);
 							}
 							else {
+								System.out.println("Cache" + cache_id + " busSnoop(): I made request, Going to Exclusive from Invalid for BusRd");
 								block.setState(State.EXCLUSIVE);
 							}
 						}
 						else { //MSI protocol
+							System.out.println("Cache" + cache_id + " busSnoop(): I made request, MSI, Going to Shared from Invalid for BusRd");
 							block.setState(State.SHARED);
 						}
 					}
 					else if(request.getTransaction() == Transaction.BusRdX){
+						System.out.println("Cache" + cache_id + " busSnoop() - I made request, Going to Modified from Invalid for BusRdX");
 						block.setState(State.MODIFIED);
 					}
 				}
@@ -353,22 +361,27 @@ public class Cache {
 				State state = block.getState();
 				if(state == State.MODIFIED){
 					if(request.getTransaction() == Transaction.BusRd){
+						System.out.println("Cache" + cache_id + " busSnoop(): Going to Shared from Modified for BusRd");
 						block.setState(State.SHARED);
 					}
 					else if(request.getTransaction() == Transaction.BusRdX){
+						System.out.println("Cache" + cache_id + " busSnoop(): Going to Invalid from Modified for BusRdX");
 						block.setState(State.INVALID);
 					}
 				}
 				else if(state == State.EXCLUSIVE){
 					if(request.getTransaction() == Transaction.BusRd){
+						System.out.println("Cache" + cache_id + " busSnoop(): Going to Shared from Exclusive for BusRd");
 						block.setState(State.SHARED);
 					}
 					else if(request.getTransaction() == Transaction.BusRdX){
+						System.out.println("Cache" + cache_id + " busSnoop(): Going to Invalid from Exclusive for BusRdX");
 						block.setState(State.INVALID);
 					}
 				}
 				else if(state == State.SHARED){
 					if(request.getTransaction() == Transaction.BusRdX){
+						System.out.println("Cache" + cache_id + " busSnoop(): Going to Invalid from Shared for BusRdX");
 						block.setState(State.INVALID);
 					}
 				}
