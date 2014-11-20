@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -8,7 +9,7 @@ public class Main {
 		return (int) Long.parseLong(hs, 16);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
 
 		String protocol = args[0];
 		String trace_dir = args[1];
@@ -57,7 +58,7 @@ public class Main {
 		String output_dir = Mkdir.mkdir(trace_dir.substring(0, 3), no_processors, cache_size, associativity, block_size);
 
 		ArrayList<Processor> processors = new ArrayList<>();
-        Bus sh_bus = new Bus(protocol);
+        Bus sh_bus = new Bus(protocol, output_dir+"/bus_traffic");
 
 		File dir = new File(trace_dir);
 		File[] directoryListing = dir.listFiles();
@@ -70,7 +71,7 @@ public class Main {
         for (int i = 0; i < no_processors; i++) {
             Cache cache_creation_var = new Cache(i, cache_size, associativity, block_size, sh_bus, uniproc_flag);
             
-            Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath());
+            Processor p = new Processor(i, cache_creation_var, directoryListing[i].getAbsolutePath(), output_dir+"/out"+i);
             processors.add(p);
             sh_bus.addCache(cache_creation_var);
         }

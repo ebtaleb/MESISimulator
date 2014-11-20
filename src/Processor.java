@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class Processor {
 
@@ -8,6 +11,7 @@ public class Processor {
 	private Cache proc_cache;
 	private int cycle_count;
 	private BufferedReader ins_trace;
+	private PrintStream output_file;
 
 	private int[] pending_instruction;
 
@@ -15,12 +19,18 @@ public class Processor {
 		return (int) Long.parseLong(hs, 16);
 	}
 
-	public Processor(int proc_id, Cache c, String file) throws FileNotFoundException {
+	public Processor(int proc_id, Cache c, String in_file, String out_file) throws IOException {
 		this.proc_id = proc_id;
 		this.proc_cache = c;
 		this.cycle_count = 0;
 		this.pending_instruction = null;
-		ins_trace = new BufferedReader(new FileReader(file));
+		ins_trace = new BufferedReader(new FileReader(in_file));
+		
+		File file = new File(out_file);
+		FileOutputStream fos = new FileOutputStream(file);
+		PrintStream ps = new PrintStream(fos);
+		output_file = ps;
+		
 	}
 
 	public void run() throws Exception {
@@ -30,6 +40,7 @@ public class Processor {
         int[] ins;
         String ins_type = "";
 
+		System.setOut(output_file);
         if(this.pending_instruction == null){
         	ins = new int[2];
         	if ((line = ins_trace.readLine()) != null) {
