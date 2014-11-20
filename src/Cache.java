@@ -9,14 +9,17 @@ public class Cache {
 	private int countCacheMiss;
 	private int countCacheHit;
 	
-     //Each processor can only have 1 pending instruction in bus request queue
-	
 	private Bus bus; //access to bus
 
-	//each set has n blocks for associativity = n
+	// each set has n blocks for associativity = n
 	private CacheSet[] cache_sets;
+	
+    // Each processor can only have 1 pending instruction in bus request queue
+	// if there is already a pending request in bus. set flag = true when enqueue. 
+	// set flag = false when cache checks that bus has completed a transaction already in the bus queue
+	private boolean pending_bus_request;
+	
 	private boolean uniproc_flag;
-	private boolean pending_bus_request; //if there is already a pending request in bus. set flag = true when enqueue. set flag = false when cache checks that bus has completed a transaction already in the bus queue
 
 	public Cache(int cache_id, int cache_size, int associativity, int block_size, Bus bus, boolean f){
 		this.cache_id = cache_id;
@@ -152,7 +155,7 @@ public class Cache {
 		BusRequest new_request = null;
 
 		if (isCacheHit(addr)) {
-			System.out.println("yeah cache hit!");
+			System.out.println("Cache hit!");
 			
 			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
 	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
@@ -195,7 +198,7 @@ public class Cache {
 			countCacheHit++;
 			return true;
 		} else {
-			System.out.println("meh cache miss...");
+			System.out.println("Cache miss...");
 			countCacheMiss++;
 			System.out.println("Cache execute(): pending bus request: "+ pending_bus_request + " instruction: "+ins[0]);
 			if (!pending_bus_request) {
@@ -309,6 +312,9 @@ public class Cache {
 		for (int i = 0; i < cache_sets.length; i++) {
 			s += cache_sets[i].toString();
 		}
+		
+		s += "Number of cache hits : " + countCacheHit + "\n";
+		s += "Number of cache misses : " + countCacheMiss + "\n";
 
 		return s;
 	}
