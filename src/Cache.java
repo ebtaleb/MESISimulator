@@ -143,7 +143,7 @@ public class Cache {
 		for(int i=0;i<associativity;i++){
 			CacheLine block = cache_sets[input_index].getCacheLine(i);
 			//System.out.println("Cache isCacheHit(): tag of block address "+ address +" is " + getTag(address));
-			if (block.getAddress() == address && block.getState() != State.INVALID)  {
+			if (block.getTag() == input_tag && block.getState() != State.INVALID)  {
 				if(uniproc_flag && pending_bus_request){
 					result_flag = false;
 				}
@@ -200,7 +200,7 @@ public class Cache {
 			return true;
 		} else {
 //			System.out.println("Cache " + cache_id + ": Cache miss...");
-			countCacheMiss++;
+//			countCacheMiss++;
 //			System.out.println("Cache" + cache_id +" execute(): pending bus request: "+ pending_bus_request + " & instruction: "+ins[0]);
 			boolean check_again = isCacheHit(addr);
 //			System.out.println("Cache execute(): checking again and result is "+check_again);
@@ -220,6 +220,7 @@ public class Cache {
 //    			System.out.println("request to bus is "+ new_request.toString());
     			bus.enqueueRequest(new_request);
     			this.pending_bus_request = true;
+    			countCacheMiss++;
 			} else {
 //				System.out.println("Cache" + cache_id +" execute(): cache miss, has pending bus request");
 	    		BusRequest current_request = bus.getCurrRequest();
