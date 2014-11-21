@@ -71,8 +71,8 @@ public class Bus {
     	Cache target_cache = caches.get(cache_id);
     	CacheLine block = target_cache.getCacheBlock(br.getAddress());
 
-    	System.out.println("Bus runCacheProtocol: block is "+block.toString());
-    	System.out.println("Bus runCacheProtocol: transaction is "+br.getTransaction().toString());
+//    	System.out.println("Bus runCacheProtocol: block is "+block.toString());
+//    	System.out.println("Bus runCacheProtocol: transaction is "+br.getTransaction().toString());
     	//System.out.println("Bus runCacheProtocol: protocol is "+protocol);
     	//System.out.println("Bus runCacheProtocol: uniproc_flag is "+uniproc_flag);
 
@@ -166,13 +166,13 @@ public class Bus {
 		                    	invalidateOthers(br);
 		                        break;
 		                    case INVALID:
-		                    	System.out.println("Bus runCacheProtocol: MESI, BusRdX, Invalid. About to run snooping");
+//		                    	System.out.println("Bus runCacheProtocol: MESI, BusRdX, Invalid. About to run snooping");
 		                    	for (Cache cache : caches) {
 									cache.busSnoop(this.protocol);
 								}
 		                        break;
 		                    default:
-		                    	System.out.println("Bus runCacheProtocol: in default case for BusRdX");
+//		                    	System.out.println("Bus runCacheProtocol: in default case for BusRdX");
 		                        break;
 		                }
 		                //return;
@@ -180,7 +180,7 @@ public class Bus {
 		        	this.bus_traffic += target_cache.getBlockSize();
 		        	break;
 		    	default:
-		    		System.out.println("Bus runCacheProtocol: in default case for BusRdX 1");
+//		    		System.out.println("Bus runCacheProtocol: in default case for BusRdX 1");
 		    		break;
 	        }
     	}//end if not uniproc 
@@ -226,22 +226,22 @@ public class Bus {
     public void processBusRequests(){
     	
     	System.setOut(output_file);
-    	System.out.println("Bus processBusRequests():" +toString());
+//    	System.out.println("Bus processBusRequests():" +toString());
 
     	if (curr_request == null && message_queue.isEmpty() == true) {
     		return;
     	}
     	
     	if (curr_request == null && message_queue.isEmpty() == false) {
-    		System.out.println("Bus processBusRequests(): size of message queue is "+ message_queue.size());
+//    		System.out.println("Bus processBusRequests(): size of message queue is "+ message_queue.size());
     		curr_request = (BusRequest) this.message_queue.remove();
     		occupied_bus_flag = true;
     	}
     	
     	if (this.curr_request.getCyclesLeft() == 0) {
-    		System.out.println("cycles left is now 0");
+//    		System.out.println("cycles left is now 0");
     		runCacheProtocol(); 
-    		System.out.println("ran cache protocol");
+//    		System.out.println("ran cache protocol");
     		caches.get(this.curr_request.getCache_id()).setPendingBusRequest(false);
 //    		curr_request = null;
 //        	occupied_bus_flag = false;

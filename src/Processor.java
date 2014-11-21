@@ -57,7 +57,7 @@ public class Processor {
         		}
         		
         		ins[1] = hexStringToInt(split_line[1]);
-        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
+//        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
         	} else {
         		throw new Exception();
         	}
@@ -78,7 +78,7 @@ public class Processor {
         }
 
         if (!proc_cache.execute(ins)) {
-        	System.out.println("Processor: Proc " + proc_id + " is blocked");
+//        	System.out.println("Processor: Proc " + proc_id + " is blocked");
         	this.pending_instruction = ins;
         } else {
         	this.pending_instruction = null;
@@ -86,7 +86,7 @@ public class Processor {
         
     	cycle_count++;
 
-        if (cycle_count > 50000) {
+        if (cycle_count > 50000000) {
         	throw new Exception();
         }
 	}
