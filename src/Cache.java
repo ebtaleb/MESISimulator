@@ -262,7 +262,7 @@ public class Cache {
 //				System.out.println("Cache" + cache_id +" execute(): cache miss, has pending bus request");
 	    		BusRequest current_request = bus.getCurrRequest();
 //	    		System.out.println("Cache" + cache_id +" execute(): current request is "+current_request );
-	    		if (current_request.getCache_id() == cache_id && current_request.getCyclesLeft() == 0) {
+	    		if (current_request != null && current_request.getCache_id() == cache_id && current_request.getCyclesLeft() == 0) {
 	    			pending_bus_request = false;
 	    			return true;
 	    		} else {

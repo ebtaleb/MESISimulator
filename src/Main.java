@@ -85,6 +85,7 @@ public class Main {
 
 			} catch (Exception e) {
 				System.out.println(e.toString());
+				e.printStackTrace();
 				for (Processor cp: processors) {
 					System.setOut(cp.getStream());
 					System.out.println(cp.toString());
@@ -99,8 +100,8 @@ public class Main {
 				}
 				System.out.println("Total hits: "+total_hits);
 				System.out.println("Total misses: "+total_misses);
-				float miss_rate = (total_misses/(total_hits + total_misses));
-				System.out.println("Miss rate: "+ String.format( "%.4f", miss_rate ));
+//				float miss_rate = (total_misses/(total_hits + total_misses));
+//				System.out.println("Miss rate: "+ String.format( "%.4f", miss_rate ));
 				break;
 			}
 		}
