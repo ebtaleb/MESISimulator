@@ -57,8 +57,9 @@ public class Processor {
         		}
         		
         		ins[1] = hexStringToInt(split_line[1]);
-//        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
+        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
         	} else {
+        		System.out.println("All lines have been read");
         		throw new Exception();
         	}
 
@@ -94,6 +95,14 @@ public class Processor {
 	@Override
 	public String toString() {
 		return "Processor " +proc_id+" total cycle number : " + cycle_count + "\n" + proc_cache.toString();
+	}
+	
+	public int getCacheMisses(){
+		return proc_cache.getCacheMisses();
+	}
+	
+	public int getCacheHits(){
+		return proc_cache.getCacheHits();
 	}
 	
 	

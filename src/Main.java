@@ -91,6 +91,16 @@ public class Main {
 				}
 				System.setOut(sh_bus.getStream());
 				System.out.println("Total bus traffic : " + sh_bus.getBusTraffic() + " bytes");
+				int total_hits = 0;
+				int total_misses = 0;
+				for (Processor cp: processors) {
+					total_hits += cp.getCacheHits();
+					total_misses += cp.getCacheMisses();
+				}
+				System.out.println("Total hits: "+total_hits);
+				System.out.println("Total misses: "+total_misses);
+				float miss_rate = (total_misses/(total_hits + total_misses));
+				System.out.println("Miss rate: "+ String.format( "%.4f", miss_rate ));
 				break;
 			}
 		}

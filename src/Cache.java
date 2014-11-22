@@ -38,6 +38,14 @@ public class Cache {
 		}
 	}
 	
+	public int getCacheHits(){
+		return countCacheHit;
+	}
+	
+	public int getCacheMisses(){
+		return countCacheMiss;
+	}
+	
 	public int getBlockSize(){
 		return this.block_size;
 	}
@@ -53,12 +61,18 @@ public class Cache {
 
 	public int getNoSets() {
 		//#Sets = #Blocks / #Associativity
+		//16 sets for assoc 4
+		//System.out.println("number of sets is "+ getNoBlocks() / this.associativity);
 		return getNoBlocks() / this.associativity;
 	}
 
 	private int getOffsetBits() {
 		//eg. 16 byte block size --> log16/log2 = 4 bits
-		return (int) (Math.log(this.block_size) / Math.log(2));
+		//for 64 byte block, 6 bits
+		int no_bits = (int) (Math.log(this.block_size) / Math.log(2));
+		
+		//System.out.println("no. of offset bits = "+no_bits);
+		return no_bits;
 	}
 
 	private int getOffset(int address) {
@@ -66,24 +80,42 @@ public class Cache {
 		for (int i = 0; i < getOffsetBits(); i++ ) {
 			bitmask |= (1 << i);
 		}
-		return (address & bitmask);
+		int offset_result = (address & bitmask);
+		
+		//System.out.println("address is " + address + " offset is "+offset_result);
+		return offset_result;
+		
 	}
 
 	private int getIndexBits(){ //index = set index
 		//eg. 8 sets --> log8/log2 = 3 bits
-		return (int) (Math.log(getNoSets()) / Math.log(2));
+		//should have 4 bits
+		int no_index_bits = (int) (Math.log(getNoSets()) / Math.log(2));
+		//System.out.println("no. index bits = "+no_index_bits);
+		return no_index_bits;
 	}
 
 	private int getIndex(int address){
+		int no_times_printed = 0;
 		int bitmask = 0;
 		for (int i = getOffsetBits(); i < getOffsetBits()+getIndexBits(); i++ ) {
 			bitmask |= (1 << i);
 		}
-		return (address & bitmask) >>> getOffsetBits();
+		int index = (address & bitmask) >>> getOffsetBits();
+		if(no_times_printed > 5){
+//			System.out.println("address is " + address + " index is "+index);
+			no_times_printed++;
+			return index;
+		}
+		else {
+			return index;
+		}
+		
 	}
 
 	private int getTagBits(){
 		//assume 32 bit address
+		//System.out.println("no. tag bits is "+ 32 - getOffsetBits() - getIndexBits());
 		return 32 - getOffsetBits() - getIndexBits();
 	}
 
@@ -94,8 +126,12 @@ public class Cache {
 		for (int i = getOffsetBits() + getIndexBits(); i < 32; i++ ) {
 			bitmask |= (1 << i);
 		}
+		
+		int tag = (address & bitmask) >>> (getIndexBits() + getOffsetBits());
+//		System.out.println("tag is "+tag);
+//		System.out.println("tag binary is "+ Integer.toBinaryString(tag));
+		return tag;
 
-		return (address & bitmask) >>> (getIndexBits() + getOffsetBits());
 	}
 	
 	public void setPendingBusRequest(boolean flag){
@@ -142,7 +178,9 @@ public class Cache {
 		
 		for(int i=0;i<associativity;i++){
 			CacheLine block = cache_sets[input_index].getCacheLine(i);
-			//System.out.println("Cache isCacheHit(): tag of block address "+ address +" is " + getTag(address));
+//			System.out.println("Cache isCacheHit(): tag of block address "+ block.getAddrString() +" is " + getTag(address));
+//			int address_int = (int) Long.parseLong("00007952", 16);
+//			System.out.println("Cache isCacheHit(): tag for address 7952 is " + getTag(address_int));
 			if (block.getTag() == input_tag && block.getState() != State.INVALID)  {
 				if(uniproc_flag && pending_bus_request){
 					result_flag = false;
@@ -200,9 +238,8 @@ public class Cache {
 			return true;
 		} else {
 //			System.out.println("Cache " + cache_id + ": Cache miss...");
-//			countCacheMiss++;
 //			System.out.println("Cache" + cache_id +" execute(): pending bus request: "+ pending_bus_request + " & instruction: "+ins[0]);
-			boolean check_again = isCacheHit(addr);
+//			boolean check_again = isCacheHit(addr);
 //			System.out.println("Cache execute(): checking again and result is "+check_again);
 			if (!pending_bus_request) {
 	    		switch (ins[0]) {
@@ -229,6 +266,7 @@ public class Cache {
 	    			pending_bus_request = false;
 	    			return true;
 	    		} else {
+	    			//countCacheMiss++;
 	    			return false;
 	    		}
 			}
@@ -249,7 +287,7 @@ public class Cache {
 		else{
 			block.setState(State.INVALID);
 		}
-		//System.out.println("Cache" + cache_id +" updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
+//		System.out.println("Cache" + cache_id +" updating cache, set set index "+index+" and block index "+block_index+" with address "+block.getAddrString());
 	}
 	
 	private void updateLRUage(int addr){
@@ -277,7 +315,7 @@ public class Cache {
 			CacheLine block = cache_sets[index].getCacheLine(i);
 			//if unoccupied
 			if (block.getTag() == -1) {
-				System.out.println("in lru policy, has unoccupied cache");
+//				System.out.println("in lru policy, has unoccupied cache");
 				updateCache(addr, i);
 				updateLRUage(index, i);
 				return;
@@ -288,7 +326,7 @@ public class Cache {
 		}
 		
 		if(num_cache_lines_occupied == associativity){
-			System.out.println("all blocks occupied");
+//			System.out.println("all blocks occupied");
 			//all blocks occupied
 			//find max age
 			int max_age = -1;
@@ -324,7 +362,7 @@ public class Cache {
 	}
 
     public void busSnoop(String protocol) {
-    	//System.out.println("Cache" + cache_id + " busSnoop() - in bus snoop function.");
+//    	System.out.println("Cache" + cache_id + " busSnoop() - in bus snoop function.");
 		BusRequest request = bus.getCurrRequest();
 		CacheLine block = getCacheBlock(request.getAddress());
 		if(this.cache_id == request.getCache_id()){
