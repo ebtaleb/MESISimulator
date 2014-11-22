@@ -57,7 +57,7 @@ public class Processor {
         		}
         		
         		ins[1] = hexStringToInt(split_line[1]);
-        		System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
+        		//System.out.println("C" + cycle_count + ": proc " + proc_id + " executing "+ ins_type + Integer.toHexString(ins[1]));
         	} else {
         		System.out.println("All lines have been read");
         		throw new Exception();
@@ -65,7 +65,7 @@ public class Processor {
 
         	switch (ins[0]) {
         	case Constants.INS_FETCH:
-        		cycle_count++;
+        		cycle_count--;
         		return;
         	case Constants.INS_READ:
         		break;
@@ -87,7 +87,7 @@ public class Processor {
         
     	cycle_count++;
 
-        if (cycle_count > 50000000) {
+        if (cycle_count > 45000000) {
         	throw new Exception();
         }
 	}
