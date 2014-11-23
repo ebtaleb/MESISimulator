@@ -179,6 +179,9 @@ public class Bus {
 		            }
 		        	this.bus_traffic += target_cache.getBlockSize();
 		        	break;
+		        case BusUpd:
+		        	
+		        	break;
 		    	default:
 //		    		System.out.println("Bus runCacheProtocol: in default case for BusRdX 1");
 		    		break;

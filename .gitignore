@@ -8,3 +8,13 @@ bin
 MESI_*
 MSI_*
 Simulator.jar
+
+*.xlsx
+
+data for report.xlsx
+
+src/class_diagram_simplified.ucls
+
+src/class_diagram.png
+
+src/class_diagram.ucls

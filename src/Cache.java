@@ -209,7 +209,7 @@ public class Cache {
 //			System.out.println("Cache " + cache_id + ": Cache hit!");
 			
 			if ((getCacheBlock(addr).getState() == State.SHARED) && (ins[0] == Constants.INS_WRITE) ){
-	    		new_request = new BusRequest(cache_id, Transaction.BusRdX, addr, 10);
+	    		new_request = new BusRequest(cache_id, Transaction.BusUpd, addr, 1);
 				if (!pending_bus_request) {
 //	    			System.out.println("request to bus is "+ new_request.toString());
 	    			bus.enqueueRequest(new_request);

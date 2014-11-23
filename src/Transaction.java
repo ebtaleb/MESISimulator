@@ -1,4 +1,4 @@
 
 public enum Transaction {
-	BusRd, BusRdX, BusWB, Flush
+	BusRd, BusRdX, BusWB, Flush, BusUpd
 }
